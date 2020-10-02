@@ -1,0 +1,13 @@
+wall = new Rectangle[]{
+new Rectangle(0, 0, 200, 580),
+new Rectangle(200, 0, 80, 280),
+new Rectangle(80, 520, 1080, 120),
+new Rectangle(360, 0, 910, 120),
+new Rectangle(1190, 120, 80, 80),
+new Rectangle(200, 360, 1080, 200),
+new Rectangle(1200, 280, 80, 80),
+}
+road = new Rectangle[]{
+new Rectangle(280, 0, 80, 280),
+new Rectangle(360, 200, 920, 80),
+}
