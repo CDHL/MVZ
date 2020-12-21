@@ -25,6 +25,7 @@ import test.basics.Being.Status;
 import test.basics.Being.Type1;
 import test.basics.Being.Type2;
 import test.basics.Bulletimplementer;
+import test.basics.Describableimplementer;
 import test.basics.Enemyimplementer;
 import test.basics.Hero;
 import test.basics.Heroimplementer;
@@ -41,6 +42,19 @@ public class Utils1 {
 	Level level;
 	
 	final Map<Type1, Implementer> implementers = new HashMap<Type1, Implementer> ();
+	
+	static String cans = "\n [right button]: cancel";
+	
+	void LOVEUPTry (int prize, Being t)
+	{
+		if(level.EXP < prize) return;
+		else
+		{
+			level.addEXP(-prize);
+			t.type2Args[0] += prize;
+			normalTowerLOVEup(t);
+		}
+	}
 	
 	public Utils1(final Assets assets, final Map<Drawbase_name, Animation<TextureRegion>> animations, final Map<Drawbase_name, Rectangle> relativeRectangles, final Level level)
 	{
@@ -90,10 +104,27 @@ public class Utils1 {
 				normalZombieAttack(b1, b2);
 			}
 			@Override
-			public void zombieAnalysis(Being z, Iterator<Being> it) {
+			public void update(Being z, Iterator<Being> it) {
 				normalTrailZombieAnalysis((TrailBeing)z, it);
 				buffJudge(z);
-				
+			}
+			@Override
+			public String information(Being infoGiver) {
+				int LV = 1;
+				if(infoGiver != null)
+				{
+					LV = Utils2.getLV(infoGiver);
+				}
+				String buffs = "";
+				if(infoGiver == null)
+					return "";
+				if(infoGiver.buffArgs[4] > 0)
+				buffs = ", receives "+(int)(infoGiver.buffArgs[3]*100)+"% more DMG";
+				return 			   " * Zombie(LV "+LV+")" + buffs
+							   + "\n * HP:"+(int)infoGiver.type2Args[0]+"/"+Data.zombieOriginalHP[LV-1]
+							   + "\n * AT:"+(int)Utils2.getAT(infoGiver)+"/second     SP:"+(float)Data.zombieSpeed[LV-1]+"(pixels/frame)"
+							   + "\n * EXP:"+Data.zombieEXPValue+"             -1 HP"
+			   	   			   + "\n [x/right button]: cancel";
 			}
 		});
 		
@@ -175,10 +206,28 @@ public class Utils1 {
 				normalZombieAttack(b1, b2);
 			}
 			@Override
-			public void zombieAnalysis(Being z, Iterator<Being> it) {
+			public void update(Being z, Iterator<Being> it) {
 				normalTrailZombieAnalysis((TrailBeing)z, it);
 				buffJudge(z);
 				
+			}
+			@Override
+			public String information(Being infoGiver) {
+				int LV = 1;
+				if(infoGiver != null)
+				{
+					LV = Utils2.getLV(infoGiver);
+				}
+				String buffs = "";
+				if(infoGiver == null)
+					return "";
+				if(infoGiver.buffArgs[4] > 0)
+				buffs = ", receives "+(int)(infoGiver.buffArgs[3]*100)+"% more DMG";
+				return 			   " * Cone Zombie(LV "+LV+")" + buffs
+							   + "\n * HP:"+(int)infoGiver.type2Args[0]+"/"+Data.zombieOriginalHP[LV-1]+" + "+ (int)infoGiver.type2Args[1]+"/"+Data.coneOriginalHP[LV-1]
+							   + "\n * AT:"+(int)Utils2.getAT(infoGiver)+"/second     SP:"+(float)Data.zombieSpeed[LV-1]+"(pixels/frame)"
+							   + "\n * EXP:"+Data.coneZombieEXPValue+"            -1 HP"
+			   	   			   + "\n [x/right button]: cancel";
 			}
 		});
 
@@ -260,13 +309,30 @@ public class Utils1 {
 				normalZombieAttack(b1, b2);
 			}
 			@Override
-			public void zombieAnalysis(Being z, Iterator<Being> it) {
+			public void update(Being z, Iterator<Being> it) {
 				normalTrailZombieAnalysis((TrailBeing)z, it);
 				buffJudge(z);
 			}
+			@Override
+			public String information(Being infoGiver) {
+				int LV = 1;
+				if(infoGiver != null)
+				{
+					LV = Utils2.getLV(infoGiver);
+				}
+				String buffs = "";
+				if(infoGiver == null)
+					return "";
+				if(infoGiver.buffArgs[4] > 0)
+				buffs = ", receives "+(int)(infoGiver.buffArgs[3]*100)+"% more DMG";
+				return 			   " * Bucket Zombie(LV "+LV+")" + buffs
+							   + "\n * HP:"+(int)infoGiver.type2Args[0]+"/"+Data.zombieOriginalHP[LV-1]+" + "+ (int)infoGiver.type2Args[1]+"/"+Data.bucketOriginalHP[LV-1]
+							   + "\n * AT:"+(int)Utils2.getAT(infoGiver)+"/second     SP:"+(float)Data.zombieSpeed[LV-1]+"(pixels/frame)"
+							   + "\n * EXP:"+Data.bucketZombieEXPValue+"            -1 HP"
+			   	   			   + "\n [x/right button]: cancel";
+			}
 		});
-		
-		
+				
 		implementers.put(Type1.FROGGIT,
 		new Towerimplementer()
 		{
@@ -277,12 +343,12 @@ public class Utils1 {
 				
 			}
 			@Override
-			public void towerAnalysis(Being t, ArrayList<Being> enemies, ArrayList<Being> towers,
+			public void update(Being t, ArrayList<Being> enemies, ArrayList<Being> towers,
 					ArrayList<MoveableBeing> bullets, ArrayList<Being> renderList, Trail trail) {
 
 				buffJudge(t);
             	t.skills.get(0).updateCDTime();
-            	if(t.skills.get(0).cdReady(Data.froggitSkill0CDArgs[Utils2.getLV(t) - 1]))
+            	if(t.skills.get(0).cdReady(Data.froggitSkill0CD[Utils2.getLV(t) - 1]))
             	{
                 	Iterator<Being> it = enemies.iterator();
                 	while(it.hasNext())
@@ -300,7 +366,43 @@ public class Utils1 {
                     	}
                 	}
             	}
+            	frame2TextinfoUpdateTest(t);
             	transientlyRemoveBuff(t);
+			}
+			@Override
+			public void towerLOVEup(Being t) {
+				int LV = Utils2.getLV(t);
+				LOVEUPTry ((Data.froggitEXPValue[LV]-Data.froggitEXPValue[LV-1]), t);
+			}
+			@Override
+			public String information(Being infoGiver) {
+				int LV = 1;
+				if(infoGiver != null)
+				{
+					LV = Utils2.getLV(infoGiver);
+				}
+				if(infoGiver == null)
+				return 			   " * Froggit("+Data.froggitEXPValue[0]+"EXP)"
+						  	   + "\n * AT:"+Utils2.getAT(Type1.FROGGIT, LV)+"            RG:"+(int)Utils2.getRG(Type1.FROGGIT, LV)+"(pixels)"
+						       + "\n * CD:"+Data.froggitSkill0CD[0]+"(seconds)"
+						       + "\n * Life is difficult for this monster.";
+				
+				if(infoGiver.type2Args[2] == 0)
+				return 			   " * Froggit(LV "+LV+")"
+			  	   			   + "\n * AT:"+Utils2.getAT(infoGiver)+"            RG:"+(int)Utils2.getRG(infoGiver)+"(pixels)"
+			  	   			   + "\n * CD:"+Data.froggitSkill0CD[0]+"(seconds)"
+			  	   			   + "\n [z]: increase LOVE for "+(Data.froggitEXPValue[LV]-Data.froggitEXPValue[LV-1])+" EXP, [x]: free for "+(int)(Data.froggitEXPValue[LV-1]*0.8)+" EXP"
+					           + cans;
+				
+				if(infoGiver.type2Args[2] == 1)
+				return 			   Utils2.freeMassage(Type1.FROGGIT, Data.froggitEXPValue[LV-1]*0.8);
+				
+				if(infoGiver.type2Args[2] == 2)
+				return 			   " * Froggit(LV "+(LV+1)+")"
+						  	   + "\n * AT:"+Utils2.getAT(Type1.FROGGIT, LV+1)+"            RG:"+(int)Utils2.getRG(Type1.FROGGIT, LV+1)+"(pixels)"
+						       + "\n * CD:"+Data.froggitSkill0CD[0]+"(seconds)"
+					  	   	   + "\n press [z] again to increase LOVE for "+(Data.froggitEXPValue[LV]-Data.froggitEXPValue[LV-1])+" EXP.";
+				return "";
 			}
 		});
 		
@@ -319,12 +421,12 @@ public class Utils1 {
     			}
 			}
 			@Override
-			public void towerAnalysis(Being t, ArrayList<Being> enemies, ArrayList<Being> towers,
+			public void update(Being t, ArrayList<Being> enemies, ArrayList<Being> towers,
 					ArrayList<MoveableBeing> bullets, ArrayList<Being> renderList, Trail trail) {
 
 				buffJudge(t);
             	t.skills.get(0).updateCDTime();
-            	if(t.skills.get(0).cdReady(Data.moldsmalSkill0CDArgs[Utils2.getLV(t) - 1]))
+            	if(t.skills.get(0).cdReady(Data.moldsmalSkill0CD[Utils2.getLV(t) - 1]))
             	{
             		Iterator<Being> it = enemies.iterator();
                 	while(it.hasNext())
@@ -342,7 +444,45 @@ public class Utils1 {
                     	}
                 	}
             	}
+            	frame2TextinfoUpdateTest(t);
             	transientlyRemoveBuff(t);
+			}
+			public void towerLOVEup(Being t) {
+				int LV = Utils2.getLV(t);
+				LOVEUPTry (Data.moldsmalEXPValue[LV]-Data.moldsmalEXPValue[LV-1], t);
+			}
+			@Override
+			public String information(Being infoGiver) {
+				int LV = 1;
+				if(infoGiver != null)
+				{
+					LV = Utils2.getLV(infoGiver);
+				}
+				if(infoGiver == null)
+				return 	 		   " * Moldsmal("+Data.moldsmalEXPValue[0]+"EXP)"
+						   	   + "\n * AT:"+Utils2.getAT(Type1.MOLDSMAL_BULLET1, LV) + " + " + (int)Utils2.getAT(Type1.MOLDSMAL_BULLET2, LV)+"*9/frame"
+						   	   + "\n * RG:"+(int)Utils2.getRG(Type1.MOLDSMAL, LV)+"(pixels)"
+							   + "\n * CD:"+Data.moldsmalSkill0CD[0]+"(seconds)"
+							   + "\n * Stereotypical: Curvaceously attractive, but no brains...";
+
+				if(infoGiver.type2Args[2] == 0)
+				return 			   " * Moldsmal(LV "+LV+")"
+						   	   + "\n * AT:"+Utils2.getAT(Type1.MOLDSMAL_BULLET1, LV, infoGiver.buffArgs) + " + " + Utils2.getAT(Type1.MOLDSMAL_BULLET2, LV, infoGiver.buffArgs)+"*9/frame"
+						   	   + "\n * RG:"+(int)Utils2.getRG(infoGiver)+"(pixels)"
+						   	   + "\n * CD:"+Data.moldsmalSkill0CD[0]+"(seconds)"
+						   	   + "\n [z]: increase LOVE for "+(Data.moldsmalEXPValue[LV]-Data.moldsmalEXPValue[LV-1])+" EXP, [x]: free for "+(int)(Data.moldsmalEXPValue[LV-1]*0.8)+" EXP"
+						   	   + cans;
+
+				if(infoGiver.type2Args[2] == 1)
+				return 			   Utils2.freeMassage(Type1.MOLDSMAL, Data.moldsmalEXPValue[LV-1]*0.8);
+
+				if(infoGiver.type2Args[2] == 2)
+				return 			   " * Moldsmal(LV "+(LV+1)+")"
+						   	   + "\n * AT:"+Utils2.getAT(Type1.MOLDSMAL_BULLET1, LV+1) + " + " + Utils2.getAT(Type1.MOLDSMAL_BULLET2, LV+1)+"*9/frame"
+						   	   + "\n * RG:"+(int)Utils2.getRG(infoGiver)+"(pixels)"
+							   + "\n * CD:"+Data.moldsmalSkill0CD[0]+"(seconds)"
+					  	   	   + "\n press [z] again to increase LOVE for "+(Data.moldsmalEXPValue[LV]-Data.moldsmalEXPValue[LV-1])+" EXP.";
+				return "";
 			}
 		});
 
@@ -363,12 +503,12 @@ public class Utils1 {
     			
 			}
 			@Override
-			public void towerAnalysis(Being t, ArrayList<Being> enemies, ArrayList<Being> towers,
+			public void update(Being t, ArrayList<Being> enemies, ArrayList<Being> towers,
 					ArrayList<MoveableBeing> bullets, ArrayList<Being> renderList, Trail trail) {
 
 				buffJudge(t);
             	t.skills.get(0).updateCDTime();
-            	if(t.skills.get(0).cdReady(Data.whimsunSkill0CDArgs[Utils2.getLV(t) - 1]))
+            	if(t.skills.get(0).cdReady(Data.whimsunSkill0CD[Utils2.getLV(t) - 1]))
             	{
                 	Iterator<Being> it = enemies.iterator();
                 	while(it.hasNext())
@@ -387,7 +527,43 @@ public class Utils1 {
                     	}
                 	}
             	}
+            	frame2TextinfoUpdateTest(t);
             	transientlyRemoveBuff(t);
+			}
+			@Override
+			public void towerLOVEup(Being t) {
+				int LV = Utils2.getLV(t);
+				LOVEUPTry (Data.whimsunEXPValue[LV]-Data.whimsunEXPValue[LV-1], t);
+			}
+			@Override
+			public String information(Being infoGiver) {
+				int LV = 1;
+				if(infoGiver != null)
+				{
+					LV = Utils2.getLV(infoGiver);
+				}
+				if(infoGiver == null)
+				return 	 		   " * Whimsun("+Data.whimsunEXPValue[0]+"EXP)"
+							   + "\n * AT:"+Utils2.getAT(Type1.WHIMSUN, LV)+"/frame     RG:"+(int)Utils2.getRG(Type1.WHIMSUN, LV)+"(pixels)"
+							   + "\n * CD:"+Data.whimsunSkill0CD[0]+"(seconds)"
+							   + "\n * This monster was too sensitive to fight...";
+
+				if(infoGiver.type2Args[2] == 0)
+				return 			   " * Whimsun(LV "+LV+")"
+						   	   + "\n * AT:"+Utils2.getAT(infoGiver)+"/frame     RG:"+(int)Utils2.getRG(infoGiver)+"(pixels)"
+						   	   + "\n * CD:"+Data.whimsunSkill0CD[0]+"(seconds)"
+						   	   + "\n [z]: increase LOVE for "+(Data.whimsunEXPValue[LV]-Data.whimsunEXPValue[LV-1])+" EXP, [x]: free for "+(int)(Data.whimsunEXPValue[LV-1]*0.8)+" EXP"
+						   	   + cans;
+
+				if(infoGiver.type2Args[2] == 1)
+				return 			   Utils2.freeMassage(Type1.WHIMSUN, Data.whimsunEXPValue[LV-1]*0.8);
+
+				if(infoGiver.type2Args[2] == 2)
+				return 			   " * Whimsun(LV "+(LV+1)+")"
+						   	   + "\n * AT:"+Utils2.getAT(Type1.WHIMSUN, LV+1)+"/frame     RG:"+(int)Utils2.getRG(Type1.WHIMSUN, LV+1)+"(pixels)"
+						   	   + "\n * CD:"+Data.whimsunSkill0CD[0]+"(seconds)"
+					  	   	   + "\n press [z] again to increase LOVE for "+(Data.whimsunEXPValue[LV]-Data.whimsunEXPValue[LV-1])+" EXP.";
+				return "";
 			}
 		});
 	
@@ -405,7 +581,7 @@ public class Utils1 {
 			}
 
 			@Override
-			public void bulletAnalysis(MoveableBeing bullet, ArrayList<Being> renderList, Iterator<MoveableBeing> it,
+			public void update(MoveableBeing bullet, ArrayList<Being> renderList, Iterator<MoveableBeing> it,
 					ArrayList<Being> enemies) {
 
 		    	//让子弹飞，并且移除逃逸的子弹
@@ -420,7 +596,6 @@ public class Utils1 {
 		    	while(_it.hasNext())
 		    	{
 		    		Being z = _it.next();
-
 		    		if(normalBulletAttack(bullet, z, renderList, _it))
 		    		{
 	        			goodRemove(bullet, renderList);
@@ -466,7 +641,7 @@ public class Utils1 {
 			}
 
 			@Override
-			public void bulletAnalysis(MoveableBeing bullet, ArrayList<Being> renderList, Iterator<MoveableBeing> it,
+			public void update(MoveableBeing bullet, ArrayList<Being> renderList, Iterator<MoveableBeing> it,
 					ArrayList<Being> enemies) {
 
 		    	MoveBullet(bullet);
@@ -502,7 +677,7 @@ public class Utils1 {
 			}
 
 			@Override
-			public void bulletAnalysis(MoveableBeing bullet, ArrayList<Being> renderList, Iterator<MoveableBeing> it, ArrayList<Being> enemies) {
+			public void update(MoveableBeing bullet, ArrayList<Being> renderList, Iterator<MoveableBeing> it, ArrayList<Being> enemies) {
 
 		    	//让子弹飞，并且移除逃逸的子弹
 		    	if(!MoveBullet(bullet))
@@ -557,7 +732,7 @@ public class Utils1 {
 			}
 
 			@Override
-			public void bulletAnalysis(MoveableBeing bullet, ArrayList<Being> renderList, Iterator<MoveableBeing> it,
+			public void update(MoveableBeing bullet, ArrayList<Being> renderList, Iterator<MoveableBeing> it,
 					ArrayList<Being> enemies) {
 
 		    	MoveBullet(bullet);
@@ -592,7 +767,7 @@ public class Utils1 {
 			}
 
 			@Override
-			public void bulletAnalysis(MoveableBeing bullet, ArrayList<Being> renderList, Iterator<MoveableBeing> it,
+			public void update(MoveableBeing bullet, ArrayList<Being> renderList, Iterator<MoveableBeing> it,
 					ArrayList<Being> enemies) {
 
 		    	//让子弹飞，并且移除逃逸的子弹
@@ -633,7 +808,7 @@ public class Utils1 {
 			}
 
 			@Override
-			public void bulletAnalysis(MoveableBeing bullet, ArrayList<Being> renderList, Iterator<MoveableBeing> it,
+			public void update(MoveableBeing bullet, ArrayList<Being> renderList, Iterator<MoveableBeing> it,
 					ArrayList<Being> enemies) {
 
 		    	//让子弹飞，并且移除逃逸的子弹
@@ -674,7 +849,7 @@ public class Utils1 {
 			}
 
 			@Override
-			public void bulletAnalysis(MoveableBeing bullet, ArrayList<Being> renderList, Iterator<MoveableBeing> it,
+			public void update(MoveableBeing bullet, ArrayList<Being> renderList, Iterator<MoveableBeing> it,
 					ArrayList<Being> enemies) {
 
 		    	//让子弹飞，并且移除逃逸的子弹
@@ -702,13 +877,30 @@ public class Utils1 {
 		});
 		
 		implementers.put(Type1.ROCK,
-		new Implementer()
+		new Describableimplementer()
 		{
 			@Override
 			public void render(Being r, SpriteBatch batch, float deltaX, float deltaY) {
                 batch.draw(assets.rock_Texture, r.getX() + deltaX, r.getY() + deltaY, r.getWidth(), r.getHeight());
                 renderHPBar(r, batch, deltaX, deltaY, Data.rockOriginalHP, 0);
+                frame2TextinfoUpdateTest(r);
+			}
+
+			@Override
+			public String information(Being infoGiver) {
+				if(infoGiver == null)
+				return 	 		   " * Rock("+Data.rockEXPValue+"EXP)"
+							   + "\n * HP:"+Data.rockOriginalHP
+							   + "\n * It never moves as you wish, so don't let it move.";
+
+				if(infoGiver.type2Args[2] == 0)
+				return 			   " * Rock"
+							   + "\n * HP:"+(int)infoGiver.type2Args[1]+"/"+Data.rockOriginalHP
+						   	   + "\n [x]: free for "+(int)(Data.rockEXPValue*0.8)+" EXP, [right button]: cancel";
 				
+				if(infoGiver.type2Args[2] == 1)
+				return 			   Utils2.freeMassage(Type1.ROCK, Data.rockEXPValue*0.8);
+				return "";
 			}
 		});
 	
@@ -761,14 +953,14 @@ public class Utils1 {
 			}
 
 			@Override
-			public void heroAnalysis(Hero h, ArrayList<Being> enemies, ArrayList<MoveableBeing> bullets,
+			public void update(Hero h, ArrayList<Being> enemies, ArrayList<MoveableBeing> bullets,
 					ArrayList<Being> renderList, Trail trail) {
 
 				if(revivingDiedHero(h))
 				{
 					return;
 				}
-				
+				frame2TextinfoUpdateTest(h);
 				if(h.getStatus() == Status.MOVING)
 				{
 					h.translate((float)h.moveArgs[0], (float)h.moveArgs[1]);
@@ -841,6 +1033,20 @@ public class Utils1 {
 					}
 				}
 			}
+
+			@Override
+			public String information(Being infoGiver) {
+				int LV = 1;
+				if(infoGiver != null)
+				{
+					LV = Utils2.getLV(infoGiver);
+				}
+				return 			   " * Frisk(LV "+LV+")"
+						   + "\n * HP:"+(int)infoGiver.type2Args[0]/100+"/"+(int)Data.friskOriginalHP[LV - 1]/100
+					  	   + "\n * AT:"+(int)Utils2.getAT(Type1.FRISK, LV)+"            RG:"+(int)Utils2.getRG(infoGiver)+"(pixels)"
+					       + "\n * CD:"+Data.froggitSkill0CD[0]+"(seconds)"
+					       + "\n * Determination.";
+			}
 		});
 	
 		implementers.put(Type1.MIGOSP,
@@ -858,9 +1064,9 @@ public class Utils1 {
     			}
 			}
 			@Override
-			public void towerAnalysis(Being t, ArrayList<Being> enemies, ArrayList<Being> towers,
+			public void update(Being t, ArrayList<Being> enemies, ArrayList<Being> towers,
 					ArrayList<MoveableBeing> bullets, ArrayList<Being> renderList, Trail trail) {
-				
+				frame2TextinfoUpdateTest(t);
 				Iterator<Being> it = towers.iterator();
             	while(it.hasNext())
             	{
@@ -870,6 +1076,45 @@ public class Utils1 {
             			transientlyAddBuff(_t, t);
             		}
             	}
+			}
+			@Override
+			public void towerLOVEup(Being t) {
+				int LV = Utils2.getLV(t);
+				LOVEUPTry (Data.migospEXPValue[LV]-Data.migospEXPValue[LV-1], t);
+			}
+			@Override
+			public String information(Being infoGiver) {
+
+				int LV = 1;
+				if(infoGiver != null)
+				{
+					LV = Utils2.getLV(infoGiver);
+				}
+				if(infoGiver == null)
+				return 	 		   " * Migosp("+Data.migospEXPValue[0]+"EXP)"
+							   + "\n * RG:"+(int)Utils2.getRG(Type1.MIGOSP, LV)+"(pixels)"
+						   	   + "\n * +AT:"+(int)(Data.migospATBuffArgs[0]*100) + "%"
+							   + "\n * +RG:"+(int)(Data.migospRGBuffArgs[0]*100) + "%"
+							   + "\n * It seems evil, but it's just with the wrong crowd...";
+
+				if(infoGiver.type2Args[2] == 0)
+				return 			   " * Migosp(LV "+LV+")"
+							   + "\n * RG:"+(int)Utils2.getRG(infoGiver)+"(pixels)"
+						   	   + "\n * +AT:"+(int)(Data.migospATBuffArgs[LV-1]*100) + "%"
+							   + "\n * +RG:"+(int)(Data.migospRGBuffArgs[LV-1]*100) + "%"
+						   	   + "\n [z]: increase LOVE for "+(Data.migospEXPValue[LV]-Data.migospEXPValue[LV-1])+" EXP, [x]: free for "+(int)(Data.migospEXPValue[LV - 1]*0.8)+" EXP"
+							   + cans;
+
+				if(infoGiver.type2Args[2] == 1)
+				return 			   Utils2.freeMassage(Type1.MIGOSP, Data.migospEXPValue[LV-1]*0.8);
+
+				if(infoGiver.type2Args[2] == 2)
+				return 			   " * Migosp(LV "+(LV+1)+")"
+							   + "\n * RG:"+(int)Utils2.getRG(Type1.MIGOSP, LV+1)+"(pixels)"
+						   	   + "\n * +AT:"+(int)(Data.migospATBuffArgs[LV]*100) + "%"
+							   + "\n * +RG:"+(int)(Data.migospRGBuffArgs[LV]*100) + "%"
+				  	   	       + "\n press [z] again to increase LOVE for "+(Data.migospEXPValue[LV]-Data.migospEXPValue[LV-1])+" EXP.";
+				return "";
 			}
 		});
 	
@@ -883,10 +1128,11 @@ public class Utils1 {
 				
 			}
 			@Override
-			public void towerAnalysis(Being t, ArrayList<Being> enemies, ArrayList<Being> towers,
+			public void update(Being t, ArrayList<Being> enemies, ArrayList<Being> towers,
 					ArrayList<MoveableBeing> bullets, ArrayList<Being> renderList, Trail trail) {
 
 				buffJudge(t);
+				frame2TextinfoUpdateTest(t);
             	t.skills.get(0).updateCDTime();
             	if(t.skills.get(0).cdReady(Data.looxSkill0CDArgs[Utils2.getLV(t) - 1]))
             	{
@@ -942,6 +1188,44 @@ public class Utils1 {
             	}
             	transientlyRemoveBuff(t);
 			}
+			@Override
+			public void towerLOVEup(Being t) {
+				int LV = Utils2.getLV(t);
+				LOVEUPTry (Data.looxEXPValue[LV]-Data.looxEXPValue[LV-1], t);
+			}
+			@Override
+			public String information(Being infoGiver) {
+
+				int LV = 1;
+				if(infoGiver != null)
+				{
+					LV = Utils2.getLV(infoGiver);
+				}
+				if(infoGiver == null)
+				return 			   " * Loox("+Data.looxEXPValue[0]+"EXP)"
+						  	   + "\n * +receive DMG:"+(int)(Data.looxDMGDebuffArgs[0]*100) + "%"
+						  	   + "\n * RG:"+(int)Utils2.getRG(Type1.LOOX, LV)+"            CD:"+Data.looxSkill0CDArgs[0]+"(seconds)"
+						       + "\n * Don't pick on him."
+						       + "\n * Family name: Eyewalker.";
+				
+				if(infoGiver.type2Args[2] == 0)
+				return 			   " * Loox(LV "+LV+")"
+						  	   + "\n * +receive DMG:"+(int)(Data.looxDMGDebuffArgs[LV-1]*100) + "%"
+						  	   + "\n * RG:"+(int)Utils2.getRG(infoGiver)+"            CD:"+Data.looxSkill0CDArgs[0]+"(seconds)"
+			  	   			   + "\n [z]: increase LOVE for "+(Data.looxEXPValue[LV]-Data.looxEXPValue[LV-1])+" EXP, [x]: free for "+(int)(Data.looxEXPValue[LV-1]*0.8)+" EXP"
+			  	   			   + cans;
+				
+				if(infoGiver.type2Args[2] == 1)
+				return 			   Utils2.freeMassage(Type1.LOOX, Data.looxEXPValue[LV-1]*0.8);
+
+				if(infoGiver.type2Args[2] == 2)
+				return 			   " * Loox(LV "+(LV+1)+")"
+						  	   + "\n * +receive DMG:"+(int)(Data.looxDMGDebuffArgs[LV]*100) + "%"
+						  	   + "\n * RG:"+(int)Utils2.getRG(Type1.LOOX, LV+1)+"            CD:"+Data.looxSkill0CDArgs[0]+"(seconds)"
+						  	   + "\n press [z] again to increase LOVE for "+(Data.looxEXPValue[LV]-Data.looxEXPValue[LV-1])+" EXP.";
+				
+				return "";
+			}
 		});
 	}
 	
@@ -979,10 +1263,13 @@ public class Utils1 {
 			{
 				if(r.getType2() == Type2.HERO)
 					return;
-    			r.buffArgs[0] = Data.migospATBuffArgs[LV - 1];
-    			r.buffArgs[1] = Data.migospRGBuffArgs[LV - 1];
-				r.buffArgs[2] = 1;
+				r.buffArgs[2] = Math.max(LV, r.buffArgs[2]);
+				if(r.buffArgs[2] <= 0)
+				System.out.println("Error! buffArgs[2]<=0!");
+    			r.buffArgs[0] = Data.migospATBuffArgs[(int)r.buffArgs[2] - 1];
+    			r.buffArgs[1] = Data.migospRGBuffArgs[(int)r.buffArgs[2] - 1];
     			r.mixInColor(0.86f, 0.68f, 0.86f);
+    			break;
 			}
 			case LOOX_BULLET1:
 			{
@@ -990,6 +1277,7 @@ public class Utils1 {
     			r.buffArgs[4] = Data.looxSkill0LastTime[LV - 1];
 
     			r.mixInColor(0.9f, 0.42f, 0.3f);
+    			break;
 			}
 			default:break;
 		}
@@ -1011,13 +1299,15 @@ public class Utils1 {
     			z.type2Args[0] -= damage;
     		if(deathJudge(z))
     		{
+    			//僵尸死亡
     			level.addEXP((int)z.type2Args[2]);
     			if(z.assigned != null)
     			{
         			z.assigned.assigned = null;
         			z.assigned = null;
     			}
-    			//只能用iterator移出，不然会报错
+    			removeSelectionTest(z);
+    			//只能用iterator移除，不然会报错
             	goodRemove(z, renderList);
             	if(level.counteringFinalWave)
         		level.finalWaveZombies --;
@@ -1196,7 +1486,16 @@ public class Utils1 {
 	{
 		Rectangle bl_r = relativeRectangles.get(r.getDrawbaseName());
     	if(bl_r != null)
-    	batch.draw(assets.unit_Texture, r.getX() + deltaX, r.getY() + deltaY, bl_r.width, 2);
+    	{
+    		if(level.selectedBeing == r)
+    		{
+    			batch.setColor(1, 0, 0, 1);
+            	batch.draw(assets.unit_Texture, r.getX() + deltaX, r.getY() + deltaY, bl_r.width, 2);
+    			batch.setColor(1, 1, 1, 1);
+    		}
+    		else
+        	batch.draw(assets.unit_Texture, r.getX() + deltaX, r.getY() + deltaY, bl_r.width, 2);
+    	}
 
 		implementers.get(r.getType1()).render(r, batch, deltaX, deltaY);
 	}
@@ -1243,7 +1542,7 @@ public class Utils1 {
 		if(m.getType2() == Type2.HERO)
 		{
 			Heroimplementer i = (Heroimplementer)implementers.get(m.getType1());
-			i.heroAnalysis((Hero)m, enemies, bullets, renderList, trail);
+			i.update((Hero)m, enemies, bullets, renderList, trail);
 			return;
 		}
 	}
@@ -1253,30 +1552,44 @@ public class Utils1 {
 		if(t.getType2() == Type2.HERO)
 		{
 			Heroimplementer i = (Heroimplementer)implementers.get(t.getType1());
-			i.heroAnalysis((Hero)t, enemies, bullets, renderList, trail);
+			i.update((Hero)t, enemies, bullets, renderList, trail);
 			return;
 		}
 		Towerimplementer i = (Towerimplementer)implementers.get(t.getType1());
-		i.towerAnalysis(t, enemies, towers, bullets, renderList, trail);
+		i.update(t, enemies, towers, bullets, renderList, trail);
+	}
+	
+	public void towerLOVEup(Being t)
+	{
+		Towerimplementer i = (Towerimplementer)implementers.get(t.getType1());
+		i.towerLOVEup(t);
+	}
+	
+	void normalTowerLOVEup(Being t)
+	{
+		t.type2Args[1] ++;
 	}
 	
 	public void heroAnalysis(Hero h, ArrayList<Being> enemies, ArrayList<MoveableBeing> bullets,
 			ArrayList<Being> renderList, Trail trail) {
 
 		Heroimplementer i = (Heroimplementer)implementers.get(h.getType1());
-		i.heroAnalysis(h, enemies, bullets, renderList, trail);
+		i.update(h, enemies, bullets, renderList, trail);
 	}
 	
 	public void zombieAnalysis(Being z, Iterator<Being> it)
 	{
 		Enemyimplementer i = (Enemyimplementer)implementers.get(z.getType1());
-		i.zombieAnalysis(z, it);
+		i.update(z, it);
 	}
+	
+	//面向可“上路”的僵尸或怪物
+	void removeAttackAssign(Being b) {if(b.assigned != null)b.assigned.assigned = null; b.assigned = null;}
+	void roughRemoveAttackAssign(Being b) {b.assigned.assigned = null; b.assigned = null;}
 	
 	public void normalTrailZombieAnalysis(TrailBeing z, Iterator<Being> it)
 	{
-		boolean enemyBlocked = false;
-		
+		frame2TextinfoUpdateTest(z);
 		if(z.assigned != null)
 		{
 			Being m = z.assigned;
@@ -1284,7 +1597,6 @@ public class Utils1 {
 			{
     			z.assigned = null;
     			m.assigned = null;
-				enemyBlocked = false;
 			}
 			attack(z, m);
         	if(deathJudge(m))
@@ -1292,23 +1604,22 @@ public class Utils1 {
     			if(m.getType2() == Type2.HERO)
     			{
     				level.hero.died = true;
-	    			z.assigned = null;
-	    			level.hero.assigned = null;
-    				enemyBlocked = false;
+    				level.hero.assigned = null;
+    				z.assigned = null;
     			}
     			else
     			{
+    				m.assigned = null;
+    				z.assigned = null;
         			level.fightertile.remove(m.entityRectangle);
                 	goodRemove(m, level.renderList);
                 	goodRemove(m, level.onroadmonsters);
-	    			z.assigned = null;
-	    			m.assigned = null;
-    				enemyBlocked = false;
     			}
+				removeSelectionTest(m);
     		}
         	return;
 		}
-		
+		boolean enemyBlocked = false;
     	Iterator<Being> _it = level.onroadmonsters.iterator();
     	while(_it.hasNext())
     	{
@@ -1341,10 +1652,7 @@ public class Utils1 {
     	if(!trailMoveZombie(z, level.trail))
     	{
     		goodRemove(z, level.renderList);
-    		if(level.selectedBeing == z)
-    		{
-    			level.selectedBeing = null;
-    		}
+    		removeSelectionTest(z);
     		it.remove();
     		
     		level.HP --;
@@ -1365,7 +1673,7 @@ public class Utils1 {
 	public void bulletAnalysis(MoveableBeing bullet, ArrayList<Being> renderList, Iterator<MoveableBeing> it, ArrayList<Being> enemies)
 	{
 		Bulletimplementer i = (Bulletimplementer)implementers.get(bullet.getType1());
-		i.bulletAnalysis(bullet, renderList, it, enemies);
+		i.update(bullet, renderList, it, enemies);
 	}
 	
 	public void goodRemove(Being b, ArrayList<Being> al)
@@ -1381,6 +1689,32 @@ public class Utils1 {
     			break;
     		}
     	}
+	}
+
+	public String getFrame2Textinfo(Type1 type1, Being frame2InfoGiver)
+	{
+		Implementer _i = implementers.get(type1);
+		if(_i == null)
+			return "";
+		Describableimplementer i = (Describableimplementer)_i;
+		return i.information(frame2InfoGiver);
+	}
+	
+	public void frame2TextinfoUpdateTest(Being assumedSelectedBeing)
+	{
+		if(assumedSelectedBeing == level.selectedBeing)
+		{
+			level.frame2Textinfo = getFrame2Textinfo(assumedSelectedBeing.getType1(), assumedSelectedBeing);
+		}
+	}
+	
+	void removeSelectionTest(Being assumedSelectedBeing)
+	{
+		if(assumedSelectedBeing == level.selectedBeing)
+		{
+			System.out.println("selectedBeing removed");
+			level.selectedBeing = null;
+		}
 	}
 	
 	boolean moveSimpleBullet(MoveableBeing bullet)

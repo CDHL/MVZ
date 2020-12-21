@@ -46,13 +46,15 @@ public class Being{
 
 	public static enum Type2 {
 		DEFAULTED,
-		TOWER,
 		MONSTERSET,
-		BLOCKER,
-		ENEMY,
-		HERO, 
 		BULLET,	
 		ATTACHMENT,
+		//可选中查看目标
+		ENEMY,
+		HERO, 
+			//非塔型怪物
+			BLOCKER,
+			TOWER,
 	}
 	protected Type2 type2 = Type2.DEFAULTED;
 	public void setType2 (Type2 type2) {
@@ -212,6 +214,8 @@ public class Being{
 	{
 		skills.add(new Skill(rangetype, cdtype));//, rangeArgs, cdArgs));
 	}
+	
+	public boolean upgradeAble = false;
 	
 	//Below this text are methods which controls the size and the position of the being.
 	public Vector2 getPosition(Vector2 vector)

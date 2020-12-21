@@ -55,7 +55,6 @@ public class Level implements Screen{
 	public static int BATTLEFIELD_HEIGHT;
 	//ObjectCatching
 	public Being selectedBeing = null;
-	Type1 selectedBeingType1 = Type1.DEFAULTED;
 	
 	//If mouse catches something or something gets sticked to the mouse
 	enum MouseCatching
@@ -284,47 +283,13 @@ public class Level implements Screen{
 			{
 				case NOTHING:
 				{
-					//判断是不是鼠标碰到了Beings
-					for(Being t:towers)
+					Being _selectedBeing = changeSelectedBeingTest();
+					if(_selectedBeing != null && _selectedBeing != selectedBeing)
 					{
-						Rectangle t_r = t.getRelativeRectangle(new Rectangle());//relativeRectangles.get(z.getDrawbaseName());
-						Rectangle _t_r = new Rectangle(t.getX() + deltaX, t.getY() + deltaY, t_r.width, t_r.height);
-						if(_t_r.contains(mouseX, Data.STAGE_HEIGHT-mouseY))
-						{
-							selectedBeingType1 = t.getType1();
-							selectedBeing = t;
-							return true;
-						}
-					}
-					for(Being s:onroadmonsters)
-					{
-						Rectangle s_r = s.getRelativeRectangle(new Rectangle());//relativeRectangles.get(z.getDrawbaseName());
-						Rectangle _s_r = new Rectangle(s.getX() + deltaX, s.getY() + deltaY, s_r.width, s_r.height);
-						if(_s_r.contains(mouseX, Data.STAGE_HEIGHT-mouseY))
-						{
-							selectedBeingType1 = s.getType1();
-							selectedBeing = s;
-							return true;
-						}
-					}
-					for(Being z:enemies)
-					{
-						Rectangle z_r = z.getRelativeRectangle(new Rectangle());
-						Rectangle _z_r = new Rectangle(z.getX() + deltaX, z.getY() + deltaY, z_r.width, z_r.height);
-						if(_z_r.contains(mouseX, Data.STAGE_HEIGHT-mouseY))
-						{
-							selectedBeingType1 = z.getType1();
-							selectedBeing = z;
-							return true;
-						}
-					}
-					Rectangle h_r = hero.getRelativeRectangle(new Rectangle());
-					Rectangle _h_r = new Rectangle(hero.getX() + deltaX, hero.getY() + deltaY, h_r.width, h_r.height);
-					if(_h_r.contains(mouseX, Data.STAGE_HEIGHT-mouseY))
-					{
-						selectedBeingType1 = hero.getType1();
-						selectedBeing = hero;
-						//monsterset = heroset;
+						//切换了选中目标
+						System.out.println("selectedBeing changed");
+						resetFreeStatus(selectedBeing);
+						selectedBeing = _selectedBeing;
 						return true;
 					}
 					//移动屏幕
@@ -335,8 +300,8 @@ public class Level implements Screen{
 					deltaYWhenTouchDown = deltaY;
 					if(Gdx.input.isButtonPressed(Buttons.RIGHT))
 					{
-						updateEnums(MouseCatching.SCREEN, Type1.DEFAULTED, Type2.DEFAULTED, null);
-						resetFreeStatus();
+						resetFreeStatus(selectedBeing);
+						updateCatchingAndSelecting(MouseCatching.SCREEN, null);
 						return true;
 					}
 					mouseCatching = MouseCatching.SCREEN;
@@ -347,14 +312,14 @@ public class Level implements Screen{
 					//右键取消放塔
 					if(Gdx.input.isButtonPressed(Buttons.RIGHT))
 					{
-						updateEnums(MouseCatching.NOTHING, Type1.DEFAULTED, Type2.DEFAULTED, null);
+						clearCatchingAndSelecting();
 						return true;
 					}
 
 					//放不了塔就是放不了
 					if(monsterset.isdisabled())return true;
 					
-					updateEnums(MouseCatching.NOTHING, Type1.DEFAULTED, Type2.DEFAULTED, null);
+					clearCatchingAndSelecting();
 
 					if(monsterset.type2 == Type2.HERO)
 					{
@@ -451,6 +416,28 @@ public class Level implements Screen{
 					}
 					if(paused)
 					return true;
+					if(selectedBeing != null)
+					{
+						if(selectedBeing.upgradeAble)
+						{
+							if(selectedBeing.type2Args[2] == 0)
+							{
+								selectedBeing.type2Args[2] = 2;
+								return true;
+							}
+							if(selectedBeing.type2Args[2] == 2)
+							{
+								utils1.towerLOVEup(selectedBeing);
+								resetFreeStatus(selectedBeing);
+								selectedBeing = null;
+								return true;
+							}
+						}
+					}
+					return true;
+				}
+				case Keys.C:
+				{
 					if(waves[currentWaveNum].isComing() && (selectedBeing == null || selectedBeing.getType2()==Type2.ENEMY))
 					{
 						selectedBeing = null;
@@ -500,7 +487,7 @@ public class Level implements Screen{
 				{
 					if(died || won)
 					return true;
-					updateEnums(MouseCatching.NOTHING, Type1.DEFAULTED, Type2.DEFAULTED, null);
+					clearCatchingAndSelecting();
 					paused = !paused;
 					return true;
 				}
@@ -543,21 +530,21 @@ public class Level implements Screen{
 								}
 
 								selectedBeing = null;
-								selectedBeingType1 = Type1.DEFAULTED;
 								return true;
 							}
 						}
 						else if(selectedBeing.getType2() == Type2.ENEMY || selectedBeing.getType2() == Type2.HERO)
 						{
 							monsterset = heroset;
-							updateEnums(MouseCatching.MONSTERSET, monsterset.type1, Type2.MONSTERSET, hero);
+
+							updateCatchingAndSelecting(MouseCatching.MONSTERSET, hero);
 							return true;
 						}
 					}
 					else
 					{
 						monsterset = heroset;
-						updateEnums(MouseCatching.MONSTERSET, monsterset.type1, Type2.MONSTERSET, hero);
+						updateCatchingAndSelecting(MouseCatching.MONSTERSET, hero);
 						return true;
 					}
 					return true;
@@ -579,6 +566,18 @@ public class Level implements Screen{
 		}
 	}
 	
+	//重置原选中目标的买卖/升级Status
+	//只对非英雄怪物生效
+	void resetFreeStatus(Being t)
+	{
+		if(t == null) return;
+		if(t.getType2() == Type2.TOWER || t.getType2() == Type2.BLOCKER)
+		{
+			t.type2Args[2] = 0;
+			System.out.println("resetFreeStatus executed");
+		}
+	}
+	
 	public void onClick(int button, float x, float y)
 	{
 		System.out.println("button pressed");
@@ -597,19 +596,19 @@ public class Level implements Screen{
 			}
 			if(mouseCatching == MouseCatching.MONSTERSET && monsterset.type1 == maintype)
 			{
-				updateEnums(MouseCatching.NOTHING, Type1.DEFAULTED, Type2.DEFAULTED, null);
+				clearCatchingAndSelecting();
 				return;
 			}
 			if(mouseCatching == MouseCatching.NOTHING || mouseCatching == MouseCatching.MONSTERSET)
 			{
-				updateEnums(MouseCatching.MONSTERSET, maintype, Type2.MONSTERSET, null);
+				updateCatchingAndSelecting(MouseCatching.MONSTERSET, null);
 				monsterset = monstersets[button];
 			}
 		}
 	}
 	OrthographicCamera camera;
 	public int HP = 20;
-	int EXP = 300;
+	public int EXP = 300;
 	final MVZ_20020804 game;
 	
 	//Batch and stage
@@ -718,6 +717,7 @@ public class Level implements Screen{
 		}
 	}
 	Heroset heroset;
+	public String frame2Textinfo = "";
 	
 	public Level(final MVZ_20020804 gam, Assets assets, Texture bgTexture, String trailpath, int EXP, Type1 herotype, Rectangle[] wall, Rectangle[] water, Rectangle[] road, Wave[] waves){
 		camera = new OrthographicCamera();
@@ -766,6 +766,47 @@ public class Level implements Screen{
 		}
 	}
 
+	//判断是否让鼠标点中了新的selected Being
+	//搜索所有Being:可选中查看目标
+	Being changeSelectedBeingTest()
+	{
+		//判断是不是鼠标碰到了Beings
+		for(Being t:towers)
+		{
+			Rectangle t_r = t.getRelativeRectangle(new Rectangle());//relativeRectangles.get(z.getDrawbaseName());
+			Rectangle _t_r = new Rectangle(t.getX() + deltaX, t.getY() + deltaY, t_r.width, t_r.height);
+			if(_t_r.contains(mouseX, Data.STAGE_HEIGHT-mouseY))
+			{
+				return t;
+			}
+		}
+		for(Being s:onroadmonsters)
+		{
+			Rectangle s_r = s.getRelativeRectangle(new Rectangle());//relativeRectangles.get(z.getDrawbaseName());
+			Rectangle _s_r = new Rectangle(s.getX() + deltaX, s.getY() + deltaY, s_r.width, s_r.height);
+			if(_s_r.contains(mouseX, Data.STAGE_HEIGHT-mouseY))
+			{
+				return s;
+			}
+		}
+		for(Being z:enemies)
+		{
+			Rectangle z_r = z.getRelativeRectangle(new Rectangle());
+			Rectangle _z_r = new Rectangle(z.getX() + deltaX, z.getY() + deltaY, z_r.width, z_r.height);
+			if(_z_r.contains(mouseX, Data.STAGE_HEIGHT-mouseY))
+			{
+				return z;
+			}
+		}
+		Rectangle h_r = hero.getRelativeRectangle(new Rectangle());
+		Rectangle _h_r = new Rectangle(hero.getX() + deltaX, hero.getY() + deltaY, h_r.width, h_r.height);
+		if(_h_r.contains(mouseX, Data.STAGE_HEIGHT-mouseY))
+		{
+			return hero;
+		}
+		return null;
+	}
+	
 	public void monstersetJudge()
 	{
 		if(monsterset.type2 == Type2.TOWER)
@@ -882,7 +923,7 @@ public class Level implements Screen{
 		frame = new Frame(assets.unit_Texture, 188, 668, 1);
 		frame.setX(824);
 		frame.setY(0);
-		textinfos[0] = frame.add("HP: "+HP+"/20\nEXP: "+EXP+"\nTOWERS:", assets.font_DTM_Mono, 10, 656, 1, 1, 1, 1);
+		textinfos[0] = frame.add(propFrameInfo(), assets.font_DTM_Mono, 10, 656, 1, 1, 1, 1);
 		spriteimgs[0] = frame.add(assets.unit_Texture, 16, 490, 70, 70);
 		spriteimgs[0].setColor(0.64f, 0.64f, 0.64f, 1);
 		spriteimgs[1] = frame.add(assets.unit_Texture, 102, 490, 70, 70);
@@ -913,13 +954,14 @@ public class Level implements Screen{
 	              + "\n * Press right button to cancel."
 	              + "\n * Press left button to check a monster, check a "
 	              + "\n   zombie, or place a monster."
-	              + "\n * Press 's' to slow down the game speed."
-	              + "\n * Press 'z' to quick-start the next wave."
-	              + "\n * Press 'x' to free a monster or to control "
+	              + "\n * Press 'S' to slow down the game speed."
+	              + "\n * Press 'Z' to upgrade the monsters."
+	              + "\n * Press 'X' to free a monster or to control "
 	              + "\n   the hero."
+	              + "\n * Press 'C' to quick-start the next wave."
 	              + "\n"
-	              + "\n * Press 'x' to go back to the menu..."
-	              + "\n * Press ESC to resume the game...", assets.font_DTM_Mono, 10, Data.STAGE_HEIGHT - 200 - 12 - 10, 1, 1, 1, 0.5f);
+	              + "\n * Press 'X' to go back to the menu..."
+	              + "\n * Press ESC to resume the game...", assets.font_DTM_Mono, 10, Data.STAGE_HEIGHT - 200 - 12 - 10, 1, 1, 1, 0.9f);
 		frame3.setX(100);
 		frame3.setY(100);
 		//inputMultiplexer
@@ -1005,20 +1047,20 @@ public class Level implements Screen{
 		button[5].addListener(clickListener[5]);
         stage.addActor(button[5]);
 
-        monstersets[0] = new Monsterset(assets.white_circle_100X100_Texture, assets.froggit_Texture, Data.froggitSkill0RangeArgs[0]*2, Data.froggitSkill0RangeArgs[0]*2, assets.froggit_RRectangle, Type1.FROGGIT, Type2.TOWER, Data.froggitEXPValue[0], true, true, true, true);
+        monstersets[0] = new Monsterset(assets.white_circle_100X100_Texture, assets.froggit_Texture, Data.froggitSkill0Range[0]*2, Data.froggitSkill0Range[0]*2, assets.froggit_RRectangle, Type1.FROGGIT, Type2.TOWER, Data.froggitEXPValue[0], true, true, true, true);
         monsterset = monstersets[0];
         
-        monstersets[1] = new Monsterset(assets.white_circle_100X100_Texture, assets.whimsun_Texture, Data.whimsunSkill0RangeArgs[0]*2, Data.whimsunSkill0RangeArgs[0]*2, assets.whimsun_RRectangle, Type1.WHIMSUN, Type2.TOWER, Data.whimsunEXPValue[0], false, false, true, true);
+        monstersets[1] = new Monsterset(assets.white_circle_100X100_Texture, assets.whimsun_Texture, Data.whimsunSkill0Range[0]*2, Data.whimsunSkill0Range[0]*2, assets.whimsun_RRectangle, Type1.WHIMSUN, Type2.TOWER, Data.whimsunEXPValue[0], false, false, true, true);
         
         monstersets[2] = new Monsterset(assets.rock_Texture, assets.rock_RRectangle, Type1.ROCK, Type2.BLOCKER, Data.rockEXPValue);
 
-        monstersets[3] = new Monsterset(assets.white_circle_100X100_Texture, assets.moldsmal_Texture, Data.moldsmalSkill0RangeArgs[0]*2, Data.moldsmalSkill0RangeArgs[0]*2, assets.moldsmal_RRectangle, Type1.MOLDSMAL, Type2.TOWER, Data.moldsmalEXPValue[0], true, true, true, true);
+        monstersets[3] = new Monsterset(assets.white_circle_100X100_Texture, assets.moldsmal_Texture, Data.moldsmalSkill0Range[0]*2, Data.moldsmalSkill0Range[0]*2, assets.moldsmal_RRectangle, Type1.MOLDSMAL, Type2.TOWER, Data.moldsmalEXPValue[0], true, true, true, true);
 
         monstersets[4] = new Monsterset(assets.white_circle_100X100_Texture, assets.migosp_Texture, Data.migospSkill0RangeArgs[0]*2, Data.migospSkill0RangeArgs[0]*2, assets.migosp_RRectangle, Type1.MIGOSP, Type2.TOWER, Data.migospEXPValue[0], true, true, true, true);
 
         monstersets[5] = new Monsterset(assets.white_circle_100X100_Texture, assets.loox_Texture, Data.looxSkill0RangeArgs[0]*2, Data.looxSkill0RangeArgs[0]*2, assets.loox_RRectangle, Type1.LOOX, Type2.TOWER, Data.looxEXPValue[0], true, true, true, true);
         
-        heroset = new Heroset(assets.white_circle_100X100_Texture, assets.frisk_walking_Texture, Data.froggitSkill0RangeArgs[0]*2, Data.froggitSkill0RangeArgs[0]*2, assets.frisk_walking_RRectangle, Type1.FRISK, true, true, true, false);
+        heroset = new Heroset(assets.white_circle_100X100_Texture, assets.frisk_walking_Texture, Data.froggitSkill0Range[0]*2, Data.froggitSkill0Range[0]*2, assets.frisk_walking_RRectangle, Type1.FRISK, true, true, true, false);
         
         this.wall = new SpecialTiles(wall);
         this.water = new SpecialTiles(water);
@@ -1043,6 +1085,11 @@ public class Level implements Screen{
 			w.assignLevel(this);
 		}
 		finalWaveZombies = waves[totalWaves - 1].zombieNum;
+	}
+	
+	String propFrameInfo()
+	{
+		return "HP: "+HP+"/20\nEXP: "+EXP+"\nTOWERS:\n\n\n\n\n\n\n\n\n\nSD:"+slowed;
 	}
 	
 	@Override
@@ -1095,8 +1142,7 @@ public class Level implements Screen{
 		//Update the monsterset
 		this.monstersetJudge();
 		//Update frames
-		frame.update(textinfos[0], "HP: "+HP+"/20\nEXP: "+EXP+"\nTOWERS:");
-		String frame2Textinfo = Utils2.getFrame2Textinfo(selectedBeingType1, selectedBeing);
+		frame.update(textinfos[0], propFrameInfo());
 		if(frame2Textinfo == "" && waves[currentWaveNum].isComing())
 		{
 			frame2Textinfo = waves[currentWaveNum].getWaveTextInfo();
@@ -1110,7 +1156,9 @@ public class Level implements Screen{
 			frame2.update(textinfos[1], 1, 1, 1, 1);
 		}
 		frame2.update(textinfos[1], frame2Textinfo);
-		
+		frame2Textinfo = "";
+		if(selectedBeing == null && mouseCatching == MouseCatching.MONSTERSET)
+		frame2Textinfo = utils1.getFrame2Textinfo(monsterset.type1, null);
     	//塔的处理与分析
     	Iterator<Being> it1 = towers.iterator();
         while(it1.hasNext())
@@ -1161,10 +1209,10 @@ public class Level implements Screen{
         }
 	}
 	
-	public void die()
+	void die()
 	{
 		died = true;
-		updateEnums(MouseCatching.NOTHING, Type1.DEFAULTED, Type2.DEFAULTED, null);
+		clearCatchingAndSelecting();
 		frame2.update(textinfos[1], " * GAMEOVER..."
 				                + "\n * You cannot give up just yet..."
 				                + "\n * Whoever you are! stay determined..."
@@ -1172,10 +1220,10 @@ public class Level implements Screen{
 				);
 	}
 	
-	public void win()
+	void win()
 	{
 		won = true;
-		updateEnums(MouseCatching.NOTHING, Type1.DEFAULTED, Type2.DEFAULTED, null);
+		clearCatchingAndSelecting();
 		frame2.update(textinfos[1], " * YOU WON!"
 				                + "\n * Press 'z' to go back to the menu."
 				);
@@ -1200,13 +1248,21 @@ public class Level implements Screen{
 			}
 		}
 	}
-	public void updateEnums(MouseCatching mouseCatching, Type1 frame2InfoType1, Type2 frame2InfoType2, Being frame2InfoGiver)
+	
+	void clearCatchingAndSelecting()
+	{
+		updateCatchingAndSelecting(MouseCatching.NOTHING, null);
+	}
+	void updateCatchingAndSelecting(MouseCatching mouseCatching, Being selectedBeing)
 	{
 		this.mouseCatching = mouseCatching;
-		this.selectedBeingType1 = frame2InfoType1;
-		this.selectedBeing = frame2InfoGiver;
+		if(this.selectedBeing != selectedBeing)
+		{
+			System.out.println("selectedBeing changed");
+			resetFreeStatus(selectedBeing);
+			this.selectedBeing = selectedBeing;
+		}
 	}
-	
 	public void addEXP(int EXP)
 	{
 		this.EXP += EXP;

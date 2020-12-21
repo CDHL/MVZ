@@ -7,9 +7,9 @@ import com.badlogic.gdx.math.Vector2;
 import basics.Trail;
 import beings.MoveableBeing;
 
-public abstract class Heroimplementer extends Implementer {
+public abstract class Heroimplementer extends Describableimplementer {
 
-	public abstract void heroAnalysis(Hero h, ArrayList<Being> enemies,
+	public abstract void update(Hero h, ArrayList<Being> enemies,
 			ArrayList<MoveableBeing> bullets, ArrayList<Being> renderList, Trail trail);
 	
 	public abstract void beginGOTO(Hero h, Vector2 destination, int position);

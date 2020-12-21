@@ -1,8 +1,6 @@
 package util;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -53,10 +51,13 @@ public final class Utils2 {
 	public static Trail gettrail(final String path)
 	{
 		Trail trail = null;
+	          
 		try{
-			trail = new Trail ();
-			//File file = new File(path);
 			//FileReader fileReader = new FileReader(file);
+			//BufferedReader reader = new BufferedReader(fileReader);
+			trail = new Trail ();
+			System.out.println(path);
+			System.out.println("用户的当前工作目录:/n"+System.getProperty("user.dir")); 
 			InputStream in = Utils2.class.getClassLoader().getResourceAsStream(path); 
 			BufferedReader reader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
 			
@@ -67,13 +68,12 @@ public final class Utils2 {
 				trail.addNewPosition(Float.parseFloat(args[0]), Float.parseFloat(args[1]));
 			}
 			reader.close();
+			
 			trail.update();
-		}catch(IOException ex){
-			ex.printStackTrace();
-		}
-		return trail;
+			
+		}catch(IOException ex){ex.printStackTrace();}
 
-		
+		return trail;
 	}
 	
 	public static Being getMonster(Type1 type, Rectangle relativeRectangle)
@@ -120,6 +120,7 @@ public final class Utils2 {
 				_t.addNewSkill(Skill.Rangetype.NORMAL, Skill.CDType.NORMAL);//, Data.froggitSkill0RangeArgs, Data.froggitSkill0CDArgs);
 				_t.skills.get(0).cdTime = Data.maxNumber;
 				_t.setDrawbaseName(Being.Drawbase_name.FROGGIT);
+				_t.upgradeAble = true;
 				t = _t;
 				break;
 			}
@@ -130,6 +131,7 @@ public final class Utils2 {
 				_t.addNewSkill(Skill.Rangetype.NORMAL, Skill.CDType.NORMAL);//, Data.whimsunSkill0RangeArgs, Data.whimsunSkill0CDArgs);
 				_t.skills.get(0).cdTime = Data.maxNumber;
 				_t.setDrawbaseName(Being.Drawbase_name.WHIMSUN);
+				_t.upgradeAble = true;
 				t = _t;
 				break;
 			}
@@ -140,6 +142,7 @@ public final class Utils2 {
 				_t.addNewSkill(Skill.Rangetype.NORMAL, Skill.CDType.NORMAL);//, Data.moldsmalSkill0RangeArgs, Data.moldsmalSkill0CDArgs);
 				_t.skills.get(0).cdTime = Data.maxNumber;
 				_t.setDrawbaseName(Being.Drawbase_name.MOLDSMAL);
+				_t.upgradeAble = true;
 				t = _t;
 				break;
 			}
@@ -149,6 +152,7 @@ public final class Utils2 {
 				_t.type2Args[0] = Data.migospEXPValue[0];//EXPValue
 				_t.addNewSkill(Skill.Rangetype.NORMAL, Skill.CDType.ALWAYS);//, Data.migospSkill0RangeArgs, null);
 				_t.setDrawbaseName(Being.Drawbase_name.MIGOSP);
+				_t.upgradeAble = true;
 				t = _t;
 				break;
 			}
@@ -163,6 +167,7 @@ public final class Utils2 {
 				_t.addNewSkill(Skill.Rangetype.NORMAL, Skill.CDType.NORMAL);
 				_t.skills.get(2).cdTime = 0;
 				_t.setDrawbaseName(Being.Drawbase_name.LOOX);
+				_t.upgradeAble = true;
 				t = _t;
 				break;
 			}
@@ -498,173 +503,8 @@ public final class Utils2 {
 			}
 			default:{break;}
 		}
-		return 			   " * press [x] again to free "+monsterName+" for "+(int)EXP+" EXP";
+		return 			   " * press [x] again to free "+monsterName+" for "+(int)EXP+" EXP.";
 	}
-	
-	public static String getFrame2Textinfo(Type1 type1, Being frame2InfoGiver)
-	{
-		int LV = 1;
-		if(frame2InfoGiver != null)
-		{
-			LV = getLV(frame2InfoGiver);
-		}
-		String buffs = "";
-		switch(type1)
-		{
-			case ZOMBIE:
-			{
-				if(frame2InfoGiver == null)
-					return "";
-				if(frame2InfoGiver.buffArgs[4] > 0)
-				buffs = ", receives "+(int)(frame2InfoGiver.buffArgs[3]*100)+"% more DMG";
-				return 			   " * Zombie(LV "+LV+")" + buffs
-							   + "\n * HP:"+(int)frame2InfoGiver.type2Args[0]+"/"+Data.zombieOriginalHP[LV-1]
-							   + "\n * AT:"+(int)getAT(frame2InfoGiver)+"/second     SP:"+(float)Data.zombieSpeed[LV-1]+"(pixels/frame)"
-							   + "\n * EXP:"+Data.zombieEXPValue+"             -1 HP"
-			   	   			   + "\n [x/right button]: cancel";
-			}
-			case CONE_ZOMBIE:
-			{
-				if(frame2InfoGiver == null)
-					return "";
-				if(frame2InfoGiver.buffArgs[4] > 0)
-				buffs = ", receives "+(int)(frame2InfoGiver.buffArgs[3]*100)+"% more DMG";
-				return 			   " * Cone Zombie(LV "+LV+")"
-							   + "\n * HP:"+(int)frame2InfoGiver.type2Args[0]+"/"+Data.zombieOriginalHP[LV-1]+" + "+ (int)frame2InfoGiver.type2Args[1]+"/"+Data.coneOriginalHP[LV-1]
-							   + "\n * AT:"+(int)getAT(frame2InfoGiver)+"/second     SP:"+(float)Data.zombieSpeed[LV-1]+"(pixels/frame)"
-							   + "\n * EXP:"+Data.coneZombieEXPValue+"            -1 HP"
-			   	   			   + "\n [x/right button]: cancel";
-			}
-			case BUCKET_ZOMBIE:
-			{
-				if(frame2InfoGiver == null)
-					return "";
-				if(frame2InfoGiver.buffArgs[4] > 0)
-				buffs = ", receives "+(int)(frame2InfoGiver.buffArgs[3]*100)+"% more DMG";
-				return 			   " * Bucket Zombie(LV "+LV+")"
-							   + "\n * HP:"+(int)frame2InfoGiver.type2Args[0]+"/"+Data.zombieOriginalHP[LV-1]+" + "+ (int)frame2InfoGiver.type2Args[1]+"/"+Data.bucketOriginalHP[LV-1]
-							   + "\n * AT:"+(int)getAT(frame2InfoGiver)+"/second     SP:"+(float)Data.zombieSpeed[LV-1]+"(pixels/frame)"
-							   + "\n * EXP:"+Data.bucketZombieEXPValue+"            -1 HP"
-			   	   			   + "\n [x/right button]: cancel";
-			}
-			case FROGGIT:
-			{
-				if(frame2InfoGiver == null)
-				return 			   " * Froggit("+Data.froggitEXPValue[0]+"EXP)"
-						  	   + "\n * AT:"+getAT(type1, LV)+"            RG:"+(int)getRG(type1, LV)+"(pixels)"
-						       + "\n * CD:"+Data.froggitSkill0CDArgs[0]+"(seconds)"
-						       + "\n * Life is difficult for this monster.";
-				
-				if(frame2InfoGiver.type2Args[2] == 0)
-				return 			   " * Froggit(LV "+LV+")"
-			  	   			   + "\n * AT:"+getAT(frame2InfoGiver)+"            RG:"+(int)getRG(frame2InfoGiver)+"(pixels)"
-			  	   			   + "\n * CD:"+Data.froggitSkill0CDArgs[0]+"(seconds)"
-			  	   			   + "\n [z]: increase LOVE for "+(Data.froggitEXPValue[LV]-Data.froggitEXPValue[LV-1])+" EXP, [x]: free for "+(int)(Data.froggitEXPValue[LV-1]*0.8)+" EXP";
-				
-				if(frame2InfoGiver.type2Args[2] == 1)
-				return 			   freeMassage(type1, Data.froggitEXPValue[LV-1]*0.8);
-			}
-			case WHIMSUN:
-			{
-				if(frame2InfoGiver == null)
-				return 	 		   " * Whimsun("+Data.whimsunEXPValue[0]+"EXP)"
-							   + "\n * AT:"+getAT(type1, LV)+"/frame     RG:"+(int)getRG(type1, LV)+"(pixels)"
-							   + "\n * CD:"+Data.whimsunSkill0CDArgs[0]+"(seconds)"
-							   + "\n * This monster was too sensitive to fight...";
-
-				if(frame2InfoGiver.type2Args[2] == 0)
-				return 			   " * Whimsun(LV "+LV+")"
-						   	   + "\n * AT:"+getAT(frame2InfoGiver)+"/frame     RG:"+(int)getRG(frame2InfoGiver)+"(pixels)"
-						   	   + "\n * CD:"+Data.whimsunSkill0CDArgs[0]+"(seconds)"
-						   	   + "\n [z]: increase LOVE for "+(Data.whimsunEXPValue[LV]-Data.whimsunEXPValue[LV-1])+" EXP, [x]: free for "+(int)(Data.whimsunEXPValue[LV-1]*0.8)+" EXP";
-
-				if(frame2InfoGiver.type2Args[2] == 1)
-				return 			   freeMassage(type1, Data.whimsunEXPValue[LV-1]*0.8);
-			}
-			case ROCK:
-			{
-				if(frame2InfoGiver == null)
-				return 	 		   " * Rock("+Data.rockEXPValue+"EXP)"
-							   + "\n * HP:"+Data.rockOriginalHP
-							   + "\n * It never moves as you wish, so don't let it move.";
-
-				if(frame2InfoGiver.type2Args[2] == 0)
-				return 			   " * Rock"
-							   + "\n * HP:"+(int)frame2InfoGiver.type2Args[1]+"/"+Data.rockOriginalHP
-						   	   + "\n [x]: free for "+(int)(Data.rockEXPValue*0.8)+" EXP";
-				
-				if(frame2InfoGiver.type2Args[2] == 1)
-				return 			   freeMassage(type1, Data.rockEXPValue*0.8);
-			}
-			case MOLDSMAL:
-			{
-				if(frame2InfoGiver == null)
-				return 	 		   " * Moldsmal("+Data.moldsmalEXPValue[0]+"EXP)"
-						   	   + "\n * AT:"+getAT(Type1.MOLDSMAL_BULLET1, LV) + " + " + (int)getAT(Type1.MOLDSMAL_BULLET2, LV)+"*9/frame"
-						   	   + "\n * RG:"+(int)getRG(type1, LV)+"(pixels)"
-							   + "\n * CD:"+Data.moldsmalSkill0CDArgs[0]+"(seconds)"
-							   + "\n * Stereotypical: Curvaceously attractive, but no brains...";
-
-				if(frame2InfoGiver.type2Args[2] == 0)
-				return 			   " * Moldsmal(LV "+LV+")"
-						   	   + "\n * AT:"+getAT(Type1.MOLDSMAL_BULLET1, LV, frame2InfoGiver.buffArgs) + " + " + getAT(Type1.MOLDSMAL_BULLET2, LV, frame2InfoGiver.buffArgs)+"*9/frame"
-						   	   + "\n * RG:"+(int)getRG(frame2InfoGiver)+"(pixels)"
-						   	   + "\n * CD:"+Data.moldsmalSkill0CDArgs[0]+"(seconds)"
-						   	   + "\n [z]: increase LOVE for "+(Data.moldsmalEXPValue[LV]-Data.moldsmalEXPValue[LV-1])+" EXP, [x]: free for "+(int)(Data.moldsmalEXPValue[LV-1]*0.8)+" EXP";
-
-				if(frame2InfoGiver.type2Args[2] == 1)
-				return 			   freeMassage(type1, Data.moldsmalEXPValue[LV-1]*0.8);
-			}
-			case FRISK:
-			{
-				return 			   " * Frisk(LV "+LV+")"
-							   + "\n * HP:"+(int)frame2InfoGiver.type2Args[0]/100+"/"+(int)Data.friskOriginalHP[LV - 1]/100
-						  	   + "\n * AT:"+(int)getAT(type1, LV)+"            RG:"+(int)getRG(frame2InfoGiver)+"(pixels)"
-						       + "\n * CD:"+Data.froggitSkill0CDArgs[0]+"(seconds)"
-						       + "\n * Determination.";
-			}
-			case MIGOSP:
-			{
-				if(frame2InfoGiver == null)
-				return 	 		   " * Migosp("+Data.migospEXPValue[0]+"EXP)"
-							   + "\n * RG:"+(int)getRG(type1, LV)+"(pixels)"
-						   	   + "\n * +AT:"+(int)(Data.migospATBuffArgs[0]*100) + "%"
-							   + "\n * +RG:"+(int)(Data.migospRGBuffArgs[0]*100) + "%"
-							   + "\n * It seems evil, but it's just with the wrong crowd...";
-
-				if(frame2InfoGiver.type2Args[2] == 0)
-				return 			   " * Migosp(LV "+LV+")"
-							   + "\n * RG:"+(int)getRG(frame2InfoGiver)+"(pixels)"
-						   	   + "\n * +AT:"+(int)(Data.migospATBuffArgs[0]*100) + "%"
-							   + "\n * +RG:"+(int)(Data.migospRGBuffArgs[0]*100) + "%"
-						   	   + "\n [z]: increase LOVE for "+(Data.migospEXPValue[LV]-Data.migospEXPValue[LV-1])+" EXP, [x]: free for "+(int)(Data.migospEXPValue[LV - 1]*0.8)+" EXP";
-
-				if(frame2InfoGiver.type2Args[2] == 1)
-				return 			   freeMassage(type1, Data.migospEXPValue[LV-1]*0.8);
-			}
-			case LOOX:
-			{
-				if(frame2InfoGiver == null)
-				return 			   " * Loox("+Data.looxEXPValue[0]+"EXP)"
-						  	   + "\n * +receive DMG:"+(int)(Data.looxDMGDebuffArgs[0]*100) + "%"
-						  	   + "\n * RG:"+(int)getRG(type1, LV)+"            CD:"+Data.looxSkill0CDArgs[0]+"(seconds)"
-						       + "\n * Don't pick on him."
-						       + "\n * Family name: Eyewalker.";
-				
-				if(frame2InfoGiver.type2Args[2] == 0)
-				return 			   " * Loox(LV "+LV+")"
-						  	   + "\n * +receive DMG:"+(int)(Data.looxDMGDebuffArgs[0]*100) + "%"
-						  	   + "\n * RG:"+(int)getRG(frame2InfoGiver)+"            CD:"+Data.looxSkill0CDArgs[0]+"(seconds)"
-			  	   			   + "\n [z]: increase LOVE for "+(Data.looxEXPValue[LV]-Data.looxEXPValue[LV-1])+" EXP, [x]: free for "+(int)(Data.looxEXPValue[LV-1]*0.8)+" EXP";
-				
-				if(frame2InfoGiver.type2Args[2] == 1)
-				return 			   freeMassage(type1, Data.looxEXPValue[LV-1]*0.8);
-			}
-			default:{}
-		}
-		return "";
-	}
-
 	public static int getLV(Being r)
 	{
 		float LV = -1;
@@ -726,7 +566,7 @@ public final class Utils2 {
 			}
 			case FROGGIT:
 			{
-				range = Data.froggitSkill0RangeArgs[LV - 1];
+				range = Data.froggitSkill0Range[LV - 1];
 				break;
 			}
 			case MIGOSP:
@@ -736,12 +576,12 @@ public final class Utils2 {
 			}
 			case MOLDSMAL:
 			{
-				range = Data.moldsmalSkill0RangeArgs[LV - 1];
+				range = Data.moldsmalSkill0Range[LV - 1];
 				break;
 			}
 			case WHIMSUN:
 			{
-				range = Data.whimsunSkill0RangeArgs[LV - 1];
+				range = Data.whimsunSkill0Range[LV - 1];
 				break;
 			}
 			case LOOX:
@@ -796,32 +636,32 @@ public final class Utils2 {
 			}
 			case FROGGIT:
 			{
-				damage = Data.froggitBullet1Damage;
+				damage = Data.froggitBullet1Damage[LV - 1];
 				break;
 			}
 			case FROGGIT_BULLET:
 			{
-				damage = Data.froggitBullet1Damage;
+				damage = Data.froggitBullet1Damage[LV - 1];
 				break;
 			}
 			case MOLDSMAL_BULLET1:
 			{
-				damage = Data.moldsmalBullet1Damage;
+				damage = Data.moldsmalBullet1Damage[LV - 1];
 				break;
 			}
 			case MOLDSMAL_BULLET2:
 			{
-				damage = Data.moldsmalBullet2Damage;
+				damage = Data.moldsmalBullet2Damage[LV - 1];
 				break;
 			}
 			case WHIMSUN:
 			{
-				damage = Data.moldsmalBullet1Damage;
+				damage = Data.whimsunBullet1Damage[LV - 1];
 				break;
 			}
 			case WHIMSUN_BULLET:
 			{
-				damage = Data.whimsunBullet1Damage;
+				damage = Data.whimsunBullet1Damage[LV - 1];
 				break;
 			}
 			case ZOMBIE:

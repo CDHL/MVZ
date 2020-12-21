@@ -43,13 +43,13 @@ public class Wave
 		return
 			  " * Final wave in "+(enemyGapTime[0]-(int)waveStateTime)+" seconds:"
 		  + "\n * "+enemyTextInfo
-		  + "\n * Press 'z ' to quick-start the next wave!";
+		  + "\n * Press 'C' to quick-start the next wave!";
 			
 		return 
 			  " * A huge wave of zombies is approaching!"
 		  + "\n * Wave "+number+" of "+level.totalWaves+" in "+(enemyGapTime[0]-(int)waveStateTime)+" seconds:"
 		  + "\n * "+enemyTextInfo
-		  + "\n * Press 'z ' to quick-start the next wave!";
+		  + "\n * Press 'C' to quick-start the next wave!";
 	}
 	public boolean isComing()
 	{

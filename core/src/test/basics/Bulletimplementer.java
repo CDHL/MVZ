@@ -9,5 +9,5 @@ public abstract class Bulletimplementer extends Implementer {
 
 	public abstract boolean MoveBullet(MoveableBeing bullet);
 	
-	public abstract void bulletAnalysis(MoveableBeing bullet, ArrayList<Being> renderList, Iterator<MoveableBeing> it, ArrayList<Being> enemies);
+	public abstract void update(MoveableBeing bullet, ArrayList<Being> renderList, Iterator<MoveableBeing> it, ArrayList<Being> enemies);
 }

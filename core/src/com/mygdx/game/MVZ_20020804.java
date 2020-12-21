@@ -31,7 +31,6 @@ public class MVZ_20020804 extends Game {
 	int currentLevelIndex = 0;
 	String currentLevelName;
 	boolean playingGame = false;
-
 	InputProcessor stageInputProcessor = new InputProcessor() {
 
 		@Override
@@ -46,7 +45,12 @@ public class MVZ_20020804 extends Game {
 				}
 				case Keys.RIGHT:
 				{
-					chooseALevel();
+					rRotateALevel();
+					return true;
+				}
+				case Keys.LEFT:
+				{
+					lRotateALevel();
 					return true;
 				}
 			}
@@ -97,9 +101,27 @@ public class MVZ_20020804 extends Game {
 		
 	};
 	
+	String menuMessage()
+	{
+		return        " * Thank you for playing MVZ(20201101version)!"
+				  + "\n * Game rule:"
+	              + "\n * Press right button to cancel."
+	              + "\n * Press left button to check a monster, check a "
+	              + "\n   zombie, or place a monster."
+	              + "\n * Press 'S' to slow down the game speed."
+	              + "\n * Press 'Z' to upgrade the monsters."
+	              + "\n * Press 'X' to free a monster or to control "
+	              + "\n   the hero."
+	              + "\n * Press 'C' to quick-start the next wave."
+	              + "\n * Press ESC to pause the game."
+	              + "\n"
+	              + "\n * Current level:"+currentLevelName
+	              + "\n * Press 'right' to choose another level."
+	              + "\n * Press 'Z' to start the level!";
+	}
+	
 	@Override
 	public void create () {
-
 		assets = new Assets();
 		batch = new SpriteBatch();
 		stage = new Stage();
@@ -107,25 +129,13 @@ public class MVZ_20020804 extends Game {
 		frame.setX(100);
 		frame.setY(100);
 
-		textinfos[0] = frame.add(" * Thank you for playing MVZ(20200830version)!"
-							  + "\n * Game rule:"
-				              + "\n * Press right button to cancel."
-				              + "\n * Press left button to check a monster, check a "
-				              + "\n   zombie, or place a monster."
-				              + "\n * Press 's' to slow down the game speed."
-				              + "\n * Press 'z' to quick-start the next wave."
-				              + "\n * Press 'x' to free a monster or to control "
-				              + "\n   the hero."
-				              + "\n * Press ESC to pause the game."
-				              + "\n"
-				              + "\n * Current level:"+currentLevelName
-				              + "\n * Press 'right' to choose another level."
-				              + "\n * Press 'z' to start the level!", assets.font_DTM_Mono, 10, Data.STAGE_HEIGHT - 200 - 12 - 10, 1, 1, 1, 1);
+		textinfos[0] = frame.add(menuMessage(), assets.font_DTM_Mono, 10, Data.STAGE_HEIGHT - 200 - 12 - 10, 1, 1, 1, 1);
 		
 		levelName.add("ruins1");
 		levelName.add("ruins2");
 		levelName.add("ruins3");
 		levelName.add("twoswitchpuzzle");
+		levelName.add("debuglevel");
 		goToMenu();
 	}
 	
@@ -147,9 +157,15 @@ public class MVZ_20020804 extends Game {
 		goToMenu();
 	}
 	
-	public void chooseALevel()
+	public void rRotateALevel()
 	{
 		currentLevelIndex = (currentLevelIndex + 1)%levelName.size();
+	}
+	public void lRotateALevel()
+	{
+		currentLevelIndex -= 1; 
+		if(currentLevelIndex == -1)
+			currentLevelIndex = levelName.size()-1;
 	}
 	
 	public void beginAGame()
@@ -159,6 +175,161 @@ public class MVZ_20020804 extends Game {
 			case "ruins1":
 			{
 				currentlevel = new Level(this, assets, assets.ruins1_Texture, "texts/ruins1.txt", 300, Type1.FRISK, 
+				new Rectangle[]{
+				new Rectangle(0, 0, 80, 960),
+				new Rectangle(80, 0, 200, 120),
+				new Rectangle(90, 120, 70, 85),
+				new Rectangle(80, 200, 40, 360),
+				new Rectangle(70, 725, 516, 240),
+				new Rectangle(360, 0, 200, 120),
+				new Rectangle(560, 0, 80, 960),
+				new Rectangle(490, 120, 70, 85),
+				new Rectangle(520, 200, 40, 360),
+				new Rectangle(200, 600, 40, 80),
+				new Rectangle(400, 600, 40, 80),
+				new Rectangle(240, 640, 170, 35),
+				}, 
+				new Rectangle[] {},
+				new Rectangle[]{
+				new Rectangle(280, 0, 80, 400),
+				new Rectangle(240, 400, 120, 40),
+				new Rectangle(200, 440, 120, 40),
+				new Rectangle(160, 480, 120, 40),
+				new Rectangle(120, 520, 80, 40),
+				new Rectangle(200, 520, 40, 80),
+				new Rectangle(80, 560, 80, 80),
+				new Rectangle(80, 640, 80, 80),
+				new Rectangle(160, 560, 40, 120),
+				new Rectangle(160, 680, 200, 40),
+				},
+				new Wave[]{
+				new Wave(1, "Zombie(LV1) * 4, Zombie(LV2) * 1",
+		        new float[]{
+		        99999, 0.8f, 0.8f, 0.8f, 0.8f,
+		        -1}, 
+		        new Type1[]{
+		        Type1.ZOMBIE, Type1.ZOMBIE, Type1.ZOMBIE, Type1.ZOMBIE, Type1.ZOMBIE, 
+		        Type1.DEFAULTED}, 
+		        new int[] {
+		        2, 1, 1, 1, 1,
+		        -1}),
+		        
+		        new Wave(2, "Zombie(LV2) * 14", 
+		        new float[]{
+		        25, 0.7f, 0.7f, 0.7f, 0.7f, 
+		        0.7f, 0.7f, 0.7f, 0.7f, 0.7f, 
+		        0.7f, 0.7f, 0.7f, 0.7f, -1}, 
+		        new Type1[]{
+		        Type1.ZOMBIE, Type1.ZOMBIE, Type1.ZOMBIE, Type1.ZOMBIE, Type1.ZOMBIE, 
+		        Type1.ZOMBIE, Type1.ZOMBIE, Type1.ZOMBIE, Type1.ZOMBIE, Type1.ZOMBIE, 
+		        Type1.ZOMBIE, Type1.ZOMBIE, Type1.ZOMBIE, Type1.ZOMBIE, Type1.DEFAULTED},
+		        new int[] {
+		        2, 2, 2, 2, 2,
+		        2, 2, 2, 2, 2, 
+		        2, 2, 2, 2, -1}),
+		        
+		        new Wave(3, "Cone Zombie(LV3) * 2", 
+		        new float[]{
+		        25, 0.2f, -1}, 
+		        new Type1[]{
+		        Type1.CONE_ZOMBIE, Type1.CONE_ZOMBIE, Type1.DEFAULTED}, 
+		        new int[] {
+		        3, 3, -1}),
+		       
+		        new Wave(4, "Zombie(LV1) * 35", 
+		        new float[]{
+		        25, 0.3f, 0.3f, 0.3f, 0.3f, 
+		        0.3f, 0.3f, 0.3f, 0.3f, 0.3f, 
+		        0.3f, 0.3f, 0.3f, 0.3f, 0.3f, 
+		        0.3f, 0.3f, 0.3f, 0.3f, 0.3f, 
+		        0.3f, 0.3f, 0.3f, 0.3f, 0.3f, 
+		        0.3f, 0.3f, 0.3f, 0.3f, 0.3f, 
+		        0.3f, 0.3f, 0.3f, 0.3f, 0.3f, -1}, 
+		        new Type1[]{
+		        Type1.ZOMBIE, Type1.ZOMBIE, Type1.ZOMBIE, Type1.ZOMBIE, Type1.ZOMBIE, 
+		        Type1.ZOMBIE, Type1.ZOMBIE, Type1.ZOMBIE, Type1.ZOMBIE, Type1.ZOMBIE, 
+		        Type1.ZOMBIE, Type1.ZOMBIE, Type1.ZOMBIE, Type1.ZOMBIE, Type1.ZOMBIE, 
+		        Type1.ZOMBIE, Type1.ZOMBIE, Type1.ZOMBIE, Type1.ZOMBIE, Type1.ZOMBIE, 
+		        Type1.ZOMBIE, Type1.ZOMBIE, Type1.ZOMBIE, Type1.ZOMBIE, Type1.ZOMBIE, 
+		        Type1.ZOMBIE, Type1.ZOMBIE, Type1.ZOMBIE, Type1.ZOMBIE, Type1.ZOMBIE, 
+		        Type1.ZOMBIE, Type1.ZOMBIE, Type1.ZOMBIE, Type1.ZOMBIE, Type1.ZOMBIE, 
+		        Type1.DEFAULTED},
+		        new int[] {
+		        1, 1, 1, 1, 1,
+		        1, 1, 1, 1, 1,
+		        1, 1, 1, 1, 1,
+		        1, 1, 1, 1, 1,
+		        1, 1, 1, 1, 1,
+		        1, 1, 1, 1, 1,
+		        1, 1, 1, 1, 1, -1
+		        }),
+		        
+		        new Wave(5, "Bucket Zombie(LV5) * 1", 
+		        new float[]{
+		        25, -1}, 
+		        new Type1[]{
+		        Type1.BUCKET_ZOMBIE, Type1.DEFAULTED},
+		        new int[] {
+		        5, -1}),
+		        
+		        new Wave(6, "Bucket Zombie(LV5) * 4", 
+		        new float[]{
+		        35, 1.3f, 1.3f, 1f, -1}, 
+		        new Type1[]{
+		        Type1.BUCKET_ZOMBIE, Type1.BUCKET_ZOMBIE, Type1.BUCKET_ZOMBIE, Type1.BUCKET_ZOMBIE, Type1.DEFAULTED},
+		        new int[] {5, 5, 5, 5, -1}),
+		        
+		        new Wave(7, "Cone Zombie(LV1) * 10", 
+		        new float[]{
+		        35, 0.6f, 0.4f, 0.3f, 0.3f, 
+		        0.3f, 0.3f, 0.3f, 0.3f, 0.3f, -1}, 
+		        new Type1[]{
+		        Type1.CONE_ZOMBIE, Type1.CONE_ZOMBIE, Type1.CONE_ZOMBIE, Type1.CONE_ZOMBIE, Type1.CONE_ZOMBIE, 
+		        Type1.CONE_ZOMBIE, Type1.CONE_ZOMBIE, Type1.CONE_ZOMBIE, Type1.CONE_ZOMBIE, Type1.CONE_ZOMBIE, Type1.DEFAULTED},
+		        new int[] {
+		        1, 1, 1, 1, 1,
+		        1, 1, 1, 1, 1, -1}),
+		        
+		        new Wave(8, "Bucket Zombie(LV6) * 4", 
+		        new float[]{
+		        40, 0.2f, 4f, 0.2f, -1}, 
+		        new Type1[]{
+		        Type1.BUCKET_ZOMBIE, Type1.BUCKET_ZOMBIE, Type1.BUCKET_ZOMBIE, Type1.BUCKET_ZOMBIE, Type1.DEFAULTED},
+		        new int[] {
+		        6, 6, 6, 6, -1}),
+		        
+		        new Wave(9, "Cone Zombie(LV2) * 10, Bucket Zombie(LV2) * 10", 
+		        new float[]{
+		        40, 0.3f, 0.3f, 0.3f, 0.3f, 
+		        0.3f, 0.3f, 0.3f, 0.3f, 0.3f, 
+		        0.3f, 0.5f, 0.5f, 0.5f, 0.5f, 
+		        0.5f, 0.5f, 0.5f, 0.5f, 0.5f, -1}, 
+		        new Type1[]{
+		        Type1.CONE_ZOMBIE, Type1.CONE_ZOMBIE, Type1.CONE_ZOMBIE, Type1.CONE_ZOMBIE, Type1.CONE_ZOMBIE, 
+		        Type1.CONE_ZOMBIE, Type1.CONE_ZOMBIE, Type1.CONE_ZOMBIE, Type1.CONE_ZOMBIE, Type1.CONE_ZOMBIE, 
+		        Type1.BUCKET_ZOMBIE, Type1.BUCKET_ZOMBIE, Type1.BUCKET_ZOMBIE, Type1.BUCKET_ZOMBIE, Type1.BUCKET_ZOMBIE, 
+		        Type1.BUCKET_ZOMBIE, Type1.BUCKET_ZOMBIE, Type1.BUCKET_ZOMBIE, Type1.BUCKET_ZOMBIE, Type1.BUCKET_ZOMBIE, Type1.DEFAULTED},
+		        new int[] {
+		        2, 2, 2, 2, 2,
+		        2, 2, 2, 2, 2,
+		        2, 2, 2, 2, 2,
+		        2, 2, 2, 2, 2, -1}),
+		        
+		        new Wave(10, "Zombie(LV9) * 7", 
+		        new float[]{
+		        60, 1f, 1f, 1f, 1f, 1f, 1f, -1},
+		        new Type1[]{
+		        Type1.BUCKET_ZOMBIE, Type1.BUCKET_ZOMBIE, Type1.BUCKET_ZOMBIE, Type1.BUCKET_ZOMBIE, Type1.BUCKET_ZOMBIE, 
+		        Type1.BUCKET_ZOMBIE, Type1.BUCKET_ZOMBIE, Type1.DEFAULTED},
+		        new int[]{
+				9, 9, 9, 9, 9, 9, 9, -1})
+				});
+				
+				break;
+			}
+			case "debuglevel":
+			{
+				currentlevel = new Level(this, assets, assets.ruins1_Texture, "texts/ruins1.txt", 9900, Type1.FRISK, 
 				new Rectangle[]{
 				new Rectangle(0, 0, 80, 960),
 				new Rectangle(80, 0, 200, 120),
@@ -990,7 +1161,7 @@ public class MVZ_20020804 extends Game {
 		        Type1.DEFAULTED}, 
 		        new int[] {
 		        2, 2, 2, 2, 2,
-		        2, 2, 
+		        2, 
 		        -1}),
 				
 				new Wave(10, "Cone Zombie(LV6) * 12",
@@ -1123,21 +1294,7 @@ public class MVZ_20020804 extends Game {
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
 		this.currentLevelName = levelName.get(currentLevelIndex);
-		frame.update(textinfos[0], 
-				" * Thank you for playing MVZ(20200830version)!"
-			  + "\n * Game rule:"
-              + "\n * Press right button to cancel."
-              + "\n * Press left button to check a monster, check a "
-              + "\n   zombie, or place a monster."
-              + "\n * Press 's' to slow down the game speed."
-              + "\n * Press 'z' to quick-start the next wave."
-              + "\n * Press 'x' to free a monster or to control "
-              + "\n   the hero."
-              + "\n * Press ESC to pause the game."
-              + "\n"
-              + "\n * Current level:"+currentLevelName
-              + "\n * Press 'right' to choose another level."
-              + "\n * Press 'z' to start the level!");
+		frame.update(textinfos[0], menuMessage());
 		frame.draw(batch);
 		batch.end();
 	}
