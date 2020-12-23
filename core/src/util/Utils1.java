@@ -344,7 +344,7 @@ public class Utils1 {
 			}
 			@Override
 			public void update(Being t, ArrayList<Being> enemies, ArrayList<Being> towers,
-					ArrayList<MoveableBeing> bullets, ArrayList<Being> renderList, Trail trail) {
+					ArrayList<MoveableBeing> bullets, ArrayList<Being> renderList) {
 
 				buffJudge(t);
             	t.skills.get(0).updateCDTime();
@@ -358,7 +358,7 @@ public class Utils1 {
                     	{
                     		t.skills.get(0).resetCDTime();
                     		Vector2 center = t.getCenter(new Vector2());
-                    		Vector2 bulletDestination = Utils2.getNormalBulletDestination(z, center.x, center.y, Data.froggitBullet1Speed, trail);
+                    		Vector2 bulletDestination = Utils2.getNormalBulletDestination(z, center.x, center.y, Data.froggitBullet1Speed, trailID2Trail(z.type2Args[5]));
                     		MoveableBeing bullet = Utils2.getBullet(Type1.FROGGIT_BULLET, new double[] {center.x, center.y, bulletDestination.x, bulletDestination.y, Data.froggitBullet1Speed}, relativeRectangles.get(Drawbase_name.FROGGIT_BULLET), Utils2.getLV(t), t.buffArgs);
                 	        bullets.add(bullet);
                 	        renderList.add(bullet);
@@ -422,7 +422,7 @@ public class Utils1 {
 			}
 			@Override
 			public void update(Being t, ArrayList<Being> enemies, ArrayList<Being> towers,
-					ArrayList<MoveableBeing> bullets, ArrayList<Being> renderList, Trail trail) {
+					ArrayList<MoveableBeing> bullets, ArrayList<Being> renderList) {
 
 				buffJudge(t);
             	t.skills.get(0).updateCDTime();
@@ -436,7 +436,7 @@ public class Utils1 {
                     	{
                     		t.skills.get(0).resetCDTime();
                     		Vector2 center = t.getCenter(new Vector2());
-                    		Vector2 bulletDestination = Utils2.getNormalBulletDestination(z, center.x, center.y, Data.moldsmalBullet1Speed, trail);
+                    		Vector2 bulletDestination = Utils2.getNormalBulletDestination(z, center.x, center.y, Data.moldsmalBullet1Speed, trailID2Trail(z.type2Args[5]));
                     		MoveableBeing bullet = Utils2.getBullet(Type1.MOLDSMAL_BULLET1, new double[] {center.x, center.y, bulletDestination.x, bulletDestination.y, Data.moldsmalBullet1Speed}, relativeRectangles.get(Drawbase_name.FROGGIT_BULLET), Utils2.getLV(t), t.buffArgs);
                 	        bullets.add(bullet);
                 	        renderList.add(bullet);
@@ -504,7 +504,7 @@ public class Utils1 {
 			}
 			@Override
 			public void update(Being t, ArrayList<Being> enemies, ArrayList<Being> towers,
-					ArrayList<MoveableBeing> bullets, ArrayList<Being> renderList, Trail trail) {
+					ArrayList<MoveableBeing> bullets, ArrayList<Being> renderList) {
 
 				buffJudge(t);
             	t.skills.get(0).updateCDTime();
@@ -917,8 +917,9 @@ public class Utils1 {
 				if(r.getStatus() == Status.DEFAULTED && r.type2Args[2] != -1)
 				{
 					int position = (int)r.type2Args[2];
-					Vector2 positionNow = level.trail.get(position);
-					Vector2 positionPref = level.trail.get(position - 1);
+					//暂时的
+					Vector2 positionNow = level.trailes[(int)r.type2Args[4]].get(position);
+					Vector2 positionPref = level.trailes[(int)r.type2Args[4]].get(position - 1);
 					float dx = positionPref.x - positionNow.x, dy = positionPref.y - positionNow.y;
 					if(Math.abs(dx) < Math.abs(dy))
 					{
@@ -954,7 +955,7 @@ public class Utils1 {
 
 			@Override
 			public void update(Hero h, ArrayList<Being> enemies, ArrayList<MoveableBeing> bullets,
-					ArrayList<Being> renderList, Trail trail) {
+					ArrayList<Being> renderList) {
 
 				if(revivingDiedHero(h))
 				{
@@ -980,7 +981,7 @@ public class Utils1 {
                     	{
                     		h.skills.get(0).resetCDTime();
                     		Vector2 center = h.getCenter(new Vector2());
-                    		Vector2 bulletDestination = Utils2.getNormalBulletDestination(z, center.x, center.y, Data.friskBullet1Speed, trail);
+                    		Vector2 bulletDestination = Utils2.getNormalBulletDestination(z, center.x, center.y, Data.friskBullet1Speed, trailID2Trail(z.type2Args[5]));
                     		MoveableBeing bullet = Utils2.getBullet(Type1.FROGGIT_BULLET, new double[] {center.x, center.y, bulletDestination.x, bulletDestination.y, Data.friskBullet1Speed}, relativeRectangles.get(Drawbase_name.FROGGIT_BULLET), Utils2.getLV(h), h.buffArgs);
                 	        bullets.add(bullet);
                 	        renderList.add(bullet);
@@ -1065,7 +1066,7 @@ public class Utils1 {
 			}
 			@Override
 			public void update(Being t, ArrayList<Being> enemies, ArrayList<Being> towers,
-					ArrayList<MoveableBeing> bullets, ArrayList<Being> renderList, Trail trail) {
+					ArrayList<MoveableBeing> bullets, ArrayList<Being> renderList) {
 				frame2TextinfoUpdateTest(t);
 				Iterator<Being> it = towers.iterator();
             	while(it.hasNext())
@@ -1129,7 +1130,7 @@ public class Utils1 {
 			}
 			@Override
 			public void update(Being t, ArrayList<Being> enemies, ArrayList<Being> towers,
-					ArrayList<MoveableBeing> bullets, ArrayList<Being> renderList, Trail trail) {
+					ArrayList<MoveableBeing> bullets, ArrayList<Being> renderList) {
 
 				buffJudge(t);
 				frame2TextinfoUpdateTest(t);
@@ -1145,7 +1146,7 @@ public class Utils1 {
                     		t.skills.get(0).resetCDTime();
                         	t.skills.get(1).updateCDTime();
                     		Vector2 center = t.getCenter(new Vector2());
-                    		Vector2 bulletDestination = Utils2.getNormalBulletDestination(z, center.x, center.y, Data.looxBulletSpeed, trail);
+                    		Vector2 bulletDestination = Utils2.getNormalBulletDestination(z, center.x, center.y, Data.looxBulletSpeed, trailID2Trail(z.type2Args[5]));
                     		MoveableBeing bullet = Utils2.getBullet(Type1.LOOX_BULLET1, new double[] {center.x, center.y, bulletDestination.x, bulletDestination.y, Data.looxBulletSpeed}, relativeRectangles.get(Drawbase_name.LOOX_BULLET1), Utils2.getLV(t), t.buffArgs);
                     		bullets.add(bullet);
                 	        renderList.add(bullet);
@@ -1164,7 +1165,7 @@ public class Utils1 {
                 		t.skills.get(1).resetCDTime();
                     	t.skills.get(2).updateCDTime();
                 		Vector2 center = t.getCenter(new Vector2());
-                		Vector2 bulletDestination = Utils2.getNormalBulletDestination(t.assigned, center.x, center.y, Data.looxBulletSpeed, trail);
+                		Vector2 bulletDestination = Utils2.getNormalBulletDestination(t.assigned, center.x, center.y, Data.looxBulletSpeed, trailID2Trail(t.assigned.type2Args[5]));
                 		MoveableBeing bullet = Utils2.getBullet(Type1.LOOX_BULLET2, new double[] {center.x, center.y, bulletDestination.x, bulletDestination.y, Data.looxBulletSpeed}, relativeRectangles.get(Drawbase_name.LOOX_BULLET2), Utils2.getLV(t), t.buffArgs);
                 		bullets.add(bullet);
             	        renderList.add(bullet);
@@ -1179,7 +1180,7 @@ public class Utils1 {
                 	{
                 		t.skills.get(2).resetCDTime();
                 		Vector2 center = t.getCenter(new Vector2());
-                		Vector2 bulletDestination = Utils2.getNormalBulletDestination(t.assigned, center.x, center.y, Data.looxBulletSpeed, trail);
+                		Vector2 bulletDestination = Utils2.getNormalBulletDestination(t.assigned, center.x, center.y, Data.looxBulletSpeed, trailID2Trail(t.assigned.type2Args[5]));
                 		MoveableBeing bullet = Utils2.getBullet(Type1.LOOX_BULLET3, new double[] {center.x, center.y, bulletDestination.x, bulletDestination.y, Data.looxBulletSpeed}, relativeRectangles.get(Drawbase_name.LOOX_BULLET3), Utils2.getLV(t), t.buffArgs);
                 		bullets.add(bullet);
             	        renderList.add(bullet);
@@ -1537,26 +1538,27 @@ public class Utils1 {
 		}
 	}
 
-	public void onroadmonsterAnalysis(Being m, ArrayList<Being> enemies, ArrayList<Being> towers, ArrayList<MoveableBeing> bullets, ArrayList<Being> renderList, Trail trail)
+	public void onroadmonsterAnalysis(Being m, ArrayList<Being> enemies, ArrayList<Being> towers, ArrayList<MoveableBeing> bullets, ArrayList<Being> renderList)
 	{
 		if(m.getType2() == Type2.HERO)
 		{
 			Heroimplementer i = (Heroimplementer)implementers.get(m.getType1());
-			i.update((Hero)m, enemies, bullets, renderList, trail);
+			//未完成
+			i.update((Hero)m, enemies, bullets, renderList);
 			return;
 		}
 	}
 	
-	public void towerAnalysis(Being t, ArrayList<Being> enemies, ArrayList<Being> towers, ArrayList<MoveableBeing> bullets, ArrayList<Being> renderList, Trail trail)
+	public void towerAnalysis(Being t, ArrayList<Being> enemies, ArrayList<Being> towers, ArrayList<MoveableBeing> bullets, ArrayList<Being> renderList)
 	{
 		if(t.getType2() == Type2.HERO)
 		{
 			Heroimplementer i = (Heroimplementer)implementers.get(t.getType1());
-			i.update((Hero)t, enemies, bullets, renderList, trail);
+			i.update((Hero)t, enemies, bullets, renderList);
 			return;
 		}
 		Towerimplementer i = (Towerimplementer)implementers.get(t.getType1());
-		i.update(t, enemies, towers, bullets, renderList, trail);
+		i.update(t, enemies, towers, bullets, renderList);
 	}
 	
 	public void towerLOVEup(Being t)
@@ -1574,7 +1576,7 @@ public class Utils1 {
 			ArrayList<Being> renderList, Trail trail) {
 
 		Heroimplementer i = (Heroimplementer)implementers.get(h.getType1());
-		i.update(h, enemies, bullets, renderList, trail);
+		i.update(h, enemies, bullets, renderList);
 	}
 	
 	public void zombieAnalysis(Being z, Iterator<Being> it)
@@ -1649,7 +1651,7 @@ public class Utils1 {
     		return;
     	}
 		//最后再移动僵尸，万一僵尸被挡住了呢？如果僵尸逃逸，就把僵尸移除
-    	if(!trailMoveZombie(z, level.trail))
+    	if(!trailMoveZombie(z, level.trailes[(int)z.type2Args[5]]))
     	{
     		goodRemove(z, level.renderList);
     		removeSelectionTest(z);
@@ -1749,6 +1751,11 @@ public class Utils1 {
 		return i.MoveBullet(b);
 	}
 
+	Trail trailID2Trail(float trailID)
+	{
+		return level.trailes[(int)trailID];
+	}
+	
 	//移动僵尸 如果僵尸在移动过程中逃逸出去，就返回false
 	public boolean trailMoveZombie(TrailBeing e, Trail trail)
 	{

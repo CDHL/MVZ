@@ -131,6 +131,26 @@ public class Level implements Screen{
 		{
 			batch.draw(texture, towerXOnScreen, towerYOnScreen, relativeRectangle.getWidth(), relativeRectangle.getHeight());
 		}
+		// -> Vector2
+		// 返回最合适的trail位置(非index)
+		// - InputX是这个点的absolute distance X
+		// - InputY是这个点的absolute distance Y
+		Vector2 getTrailPositionWithSmallestDst(float inputX, float inputY)
+		{
+			int routeID = -1;
+			Vector2 prePositionIndexandDstmin = new Vector2(-1, 99999);
+			for(int i = 0; i < trailes.length; i ++)
+			{
+				// compare challenger with prePositionIndexandDstmin with the value of Dstmin, and choose the smaller one
+				Vector2 challenger = trailes[i].searchPosition(inputX, inputY);
+				if(prePositionIndexandDstmin.y > challenger.y)
+				{
+					routeID = i;
+					prePositionIndexandDstmin = challenger;
+				}
+			}
+			return trailes[routeID].get((int)prePositionIndexandDstmin.x);
+		}
 		public void draw()
 		{
 			//鼠标没有锁定monsterset 画个锤子
@@ -152,9 +172,22 @@ public class Level implements Screen{
 				towerYOnScreen = Data.STAGE_HEIGHT - mouseY - relativeRectangle.getHeight()/2 + relativeRectangle.getY()/2;
 				if(disabled) batch.setColor(1, 0, 0, 0.8f);
 				else batch.setColor(1, 1, 1, 0.8f);
-				Vector2 prePosition = trail.get(trail.searchPosition(
-				-deltaX + towerXOnScreen
-				, -deltaY + towerYOnScreen));
+				/*//未完成
+				Vector2 prePositionIndexandDstmin = new Vector2(-1, 99999);
+				for(int i = 0; i < trailes.length; i ++)
+				{
+					// compare challenger with prePositionIndexandDstmin with the value of Dstmin, and choose the smaller one
+					Vector2 challenger = trailes[0].searchPosition(-deltaX + towerXOnScreen, -deltaY + towerYOnScreen);
+					if(prePositionIndexandDstmin.y > challenger.y)
+					{
+						prePositionIndexandDstmin = challenger;
+					}
+				}*/
+				Vector2 prePosition = getTrailPositionWithSmallestDst(-deltaX + towerXOnScreen, -deltaY + towerYOnScreen);
+				//trailes[0].get((int)prePositionIndexandDstmin.x);
+				//Vector2 prePosition = trailes[0].get(trailes[0].searchPosition(
+				//-deltaX + towerXOnScreen
+				//, -deltaY + towerYOnScreen));
 
 				towerXOnScreen = prePosition.x + deltaX;
 				towerYOnScreen = prePosition.y + deltaY;
@@ -619,7 +652,7 @@ public class Level implements Screen{
 	//relativeProperties
 	public final Map<Drawbase_name, Rectangle> relativeRectangles = new HashMap<Drawbase_name, Rectangle> ();
 	//trail
-	public Trail trail;
+	public Trail[] trailes;
 	//Background
 	private Sprite background;
 	//各种ArrayList
@@ -671,8 +704,9 @@ public class Level implements Screen{
 				towerYOnScreen = Data.STAGE_HEIGHT - mouseY - relativeRectangle.getHeight()/2 + relativeRectangle.getY()/2;
 				if(disabled) batch.setColor(1, 0, 0, 0.8f);
 				else batch.setColor(1, 1, 1, 0.8f);
-				position = trail.searchPosition( -deltaX + towerXOnScreen, -deltaY + towerYOnScreen);
-				Vector2 prePosition = trail.get(position);
+				//未完成
+				//position = trailes[0].searchPosition( -deltaX + towerXOnScreen, -deltaY + towerYOnScreen);
+				Vector2 prePosition = getTrailPositionWithSmallestDst(-deltaX + towerXOnScreen, -deltaY + towerYOnScreen);//trailes[0].get(position);
 
 				towerXOnScreen = prePosition.x + deltaX;
 				towerYOnScreen = prePosition.y + deltaY;
@@ -719,7 +753,7 @@ public class Level implements Screen{
 	Heroset heroset;
 	public String frame2Textinfo = "";
 	
-	public Level(final MVZ_20020804 gam, Assets assets, Texture bgTexture, String trailpath, int EXP, Type1 herotype, Rectangle[] wall, Rectangle[] water, Rectangle[] road, Wave[] waves){
+	public Level(final MVZ_20020804 gam, Assets assets, Texture bgTexture, String[] trailpathes, int EXP, Type1 herotype, Rectangle[] wall, Rectangle[] water, Rectangle[] road, Wave[] waves){
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, 1024, 480);
 		this.game = gam;
@@ -727,7 +761,11 @@ public class Level implements Screen{
 		this.assets = assets;
 		this.waves = waves;
 		this.EXP = EXP;
-		trail = Utils2.gettrail(trailpath);
+		trailes = new Trail[trailpathes.length];
+		for(int i = 0; i < trailpathes.length; i ++)
+		{
+			trailes[i] = Utils2.gettrail(trailpathes[i]);
+		}
 		init(herotype, water, wall, road, bgTexture);
 	}
 	
@@ -1069,8 +1107,10 @@ public class Level implements Screen{
         this.fightertile = new SpecialTiles();
         
         hero = Utils2.getHero(herotype, assets);
+        //设置trailID
+        hero.type2Args[4] = 0;
         renderList.add(hero);
-        hero.setPosition(trail.get(500).x, trail.get(500).y);
+        hero.setPosition(trailes[0].get(500).x, trailes[0].get(500).y);
 		onroadmonsters.add(hero);
         
 		deltaX = Data.STAGE_WIDTH/2 - 100 - background.getWidth()/2;
@@ -1164,7 +1204,7 @@ public class Level implements Screen{
         while(it1.hasNext())
         {
         	Being t = it1.next();
-        	utils1.towerAnalysis(t, enemies, towers, bullets, renderList, trail);
+        	utils1.towerAnalysis(t, enemies, towers, bullets, renderList);
         }
     	
     	//子弹的处理和分析，并且判断有没有打中僵尸
@@ -1194,7 +1234,7 @@ public class Level implements Screen{
         while(it4.hasNext())
         {
         	Being m = it4.next();
-        	utils1.onroadmonsterAnalysis(m, enemies, towers, _bullets, renderList, trail);
+        	utils1.onroadmonsterAnalysis(m, enemies, towers, _bullets, renderList);
         }
         //utils1.heroAnalysis(hero, enemies, bullets, renderList, trail);
         if(HP <= 0)

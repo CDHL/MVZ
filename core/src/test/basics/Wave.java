@@ -10,7 +10,9 @@ public class Wave
 {
 	public int zombieNum = 0;
 	float[] enemyGapTime;
-	int[] enemyLV;
+	short[] enemyLV;
+	//指示enemy使用的数组ID，从0开始
+	short[] enemyRouteID;
 	Type1[] enemyType;
 	float waveStateTime;
 	int index = 0;
@@ -19,18 +21,37 @@ public class Wave
 	String enemyTextInfo;
 	Level level;
 	boolean isFinalWave;
-	public Wave(int number, String enemyTextInfo, float[] enemyGapTime, Type1[] enemyType, int[] enemyLV)
+	public Wave(int number, String enemyTextInfo, ZIIW[] ziiws)//float[] enemyGapTime, Type1[] enemyType, short[] enemyLV, short[] enemyRouteID)
 	{
-		this.enemyGapTime = enemyGapTime;
-		this.enemyType = enemyType;
+		int ziiwsLength = ziiws.length;
+		this.enemyGapTime = new float[ziiwsLength];
+		this.enemyType = new Type1[ziiwsLength];
+		this.enemyLV = new short[ziiwsLength];
+		this.enemyRouteID = new short[ziiwsLength];
+		for(int i = 0; i < ziiwsLength; i ++)
+		{
+			if(ziiws[i] == null)
+			enemyGapTime[i] = -1;
+			else
+			{
+				enemyGapTime[i] = ziiws[i].gapTime;
+				enemyType[i] = ziiws[i].type;
+				enemyLV[i] = ziiws[i].LV;
+				enemyRouteID[i] = ziiws[i].routeID;
+			}
+		}
+		//this.enemyGapTime = enemyGapTime;
+		//this.enemyType = enemyType;
+		//this.enemyLV = enemyLV;
+		//this.enemyRouteID = enemyRouteID;
 		this.number = number;
 		this.enemyTextInfo = enemyTextInfo;
-		this.enemyLV = enemyLV;
 		zombieNum = enemyLV.length - 1;
-		if(enemyGapTime.length != enemyType.length || enemyType.length != enemyLV.length || enemyLV.length != enemyGapTime.length)
+		/*if(enemyGapTime.length != enemyType.length || enemyType.length != enemyLV.length
+		|| enemyLV.length != enemyRouteID.length || enemyRouteID.length != enemyGapTime.length)
 		{
 			System.out.println("Wave Error: error in wave "+Integer.toString(number));
-		}
+		}*/
 	}
 	public void assignLevel(Level level)
 	{
@@ -74,7 +95,7 @@ public class Wave
 		if(waveStateTime >= enemyGapTime[index])
 		{
 			waveStateTime = 0;
-			level.addNewZombieToStage(Utils2.getEnemy(enemyType[index], level.trail, level.assets, enemyLV[index]), level.trail);
+			level.addNewZombieToStage(Utils2.getEnemy(enemyType[index], level.trailes[enemyRouteID[index]], level.assets, enemyLV[index], enemyRouteID[index]), level.trailes[enemyRouteID[index]]);
 			index ++;
 			if(index == 1 && isFinalWave)
 			{

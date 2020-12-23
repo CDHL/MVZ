@@ -70,10 +70,10 @@ public final class Data {
 
 	//type2Args
 	//bullet: {damage, HP, lastingTime, LV}
-	//enemy: {HP, armorHP, giveEXP, LV, assignedtoenemy}
+	//enemy: {HP, armorHP, giveEXP, LV, assignedtoenemy, trailID}
 	//tower: {EXPValue, LV, free/upgradestatus(0=normal,1=free,2=upgrade)}
 	//blocker: {EXPValue, HP, free/upgradestatus(0=normal,1=free,2=upgrade)}
-	//hero: {HP, LV, position, assignedtoenemy}
+	//hero: {HP, LV, position, assignedtoenemy, trailID}
 	
 	//MoveArgs
 	//normal: {velocityx, velocityy}

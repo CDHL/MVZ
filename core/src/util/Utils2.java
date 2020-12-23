@@ -200,7 +200,7 @@ public final class Utils2 {
 		b.setType2(Type2.BLOCKER);
 		return b;
 	}
-	public static Being getEnemy(Type1 type, Trail trail, Assets assets, int LV)
+	public static Being getEnemy(Type1 type, Trail trail, Assets assets, int LV, int routeID)
 	{
 		Being e = null;
 		switch(type)
@@ -260,6 +260,8 @@ public final class Utils2 {
 		e.setType1(type);
 		e.setType2(Type2.ENEMY);
 		e.setStatus(Status.MOVING);
+		//设置僵尸的route ID
+		e.type2Args[5] = routeID;
 		return e;
 	}
 	public static Hero getHero(Type1 type, Assets assets)
@@ -427,6 +429,8 @@ public final class Utils2 {
 		{
 			Vector2 medianPresumedDestination = new Vector2(0, 0);
 			int medianPresumedDestinationPosition = (int)e.moveArgs[2] + getDeltaTrailPosition(e, medianTime);
+			if(medianPresumedDestinationPosition > trail.size - 1)
+			medianPresumedDestinationPosition = trail.size - 1;
 			//利用求出来的position推测出假定僵尸的位置
 			medianPresumedDestination.set
 			(trail.get(medianPresumedDestinationPosition).x + e.getRelativeCenterX(),

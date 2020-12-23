@@ -19,7 +19,10 @@ public class Trail extends ArrayList<Vector2> implements Serializable {
 		Vector2 position = new Vector2(x, y);
 		add(position);
 	}
-	public int searchPosition(float x, float y)
+	// -> Vector2
+	// - x坐标返回 int position
+	// - y坐标返回 dstmin
+	public Vector2 searchPosition(float x, float y)
 	{
 		int position = -1;
 		double dstmin = Data.maxNumber;
@@ -31,7 +34,7 @@ public class Trail extends ArrayList<Vector2> implements Serializable {
 				dstmin = get(i).dst(x, y);
 			}
 		}
-		return position;
+		return new Vector2((float)position, (float)dstmin);
 	}
 	public void update()
 	{
